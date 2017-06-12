@@ -1,0 +1,32 @@
+language: python
+python:
+- "2.7"
+- "3.4"
+- "3.5"
+- "3.6"
+
+env:
+  global:
+  -   secure: "auWSGl+uDjNkVuVGh/ZxWzlHOYyica7U03KCLDkA22RmZCEafrCffCiUZSejxTTZa02uJWJjhk0BeGvD446icx/8RDIirwAqtQiUwS+KJpEn+nrVrXHQ98WsV5JiSnXcuzKjc7BOf2hsQrbgckVo2wfAbCCQSYTkevulP+WzZ/H9GFr8/oU3RVPclKeoB7FRmvnndblRdI4MnEGLlmQVItLQETuweLH2ZozH2c9xIQd7RNAR8sg/fZbOLDbVEEkVgNZF/rVOFLK5JWFTZSSJtzgRD+w+/5Sw0KMHbPDlYCEyHdlnTY9Qf3hVAlDlTqi+6wXwHwu+YQRhVGjUB+idqI1jx4rNe4pRnKX6LWZBeG8f7/biTIR7KFD2D4wbq8wGvqAl6KC8Trn2z/H28MRMtzElzfCL8rnLFwNGzrCBBvo1DTbfxJYO6pQWcbIFxOGAK2nDIc+okUDeENec4LBt3xp+zTE2cMY11IND8TIdQ4GXc+fHGJgnW0LOA5FLTxwXlkZlCDh7yaq43FASsCEyZ4McyEzgX9aMZvCmXJwg/UHfAdizi9T0chDHvKRVqJUw5ilX2/HtDw5BHCvhKgbmoc6MgJOtCjZESlbQTkoduG/gzMtLJZhVhSZS0MI1y3F2UFM1mbVL5Bb2Am1qR25EyYc2w23OPxOrBLioXtvMw8U="
+  - PYPI_USER=niccokunzmann2
+
+install:
+- pip install -r requirements.txt twine wheel
+
+script:
+# test installation
+- python setup.py sdist bdist_wheel
+- pip install dist/*.whl
+
+before_deploy:
+- scripts/create_pypi_login_for_travis.sh
+
+deploy:
+- provider: script
+  script: scripts/deploy.sh
+  on:
+    branch: master
+    condition: "\"$TRAVIS_PYTHON_VERSION\" == \"3.5\""
+  repo: schul-cloud/schul_cloud_resources_server_tests
+  skip_cleanup: true
+
