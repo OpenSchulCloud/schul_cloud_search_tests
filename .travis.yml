@@ -12,6 +12,7 @@ env:
 
 install:
 - pip install -r requirements.txt twine wheel
+- chmod +x scripts/*
 
 script:
 # test installation
