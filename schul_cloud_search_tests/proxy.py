@@ -1,7 +1,9 @@
 from bottle import Bottle, request
+import sys
 from schul_cloud_resources_server_tests.tests.fixtures import StoppableWSGIRefServerAdapter
 
 ENDPOINT_STOP = "/stop"
+REDIRECT_TO = "http://localhost:8080"
 
 app = Bottle()
 
