@@ -100,6 +100,9 @@ or run this command:
 
     python3 -m schul_cloud_search_tests.stop 8080
 
+The return code is zero (success) if all tests of all requests passed.
+If one test fails, it is a number greater than zero.
+
 
 Further Reading
 ---------------
