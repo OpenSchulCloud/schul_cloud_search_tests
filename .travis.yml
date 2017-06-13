@@ -19,7 +19,7 @@ script:
 - python setup.py sdist bdist_wheel
 - pip install dist/*.whl
 - python -m schul_cloud_search_tests.proxy 8081 /endpoint/ http://localhost:8080/v1/search/ &
-- python -m schul_cloud_search_tests.stop 8081
+- sleep 2; python -m schul_cloud_search_tests.stop 8081
 - fg
 
 before_deploy:
