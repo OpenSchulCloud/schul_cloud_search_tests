@@ -3,3 +3,4 @@ bottle
 requests
 schul-cloud-resources-api-v1
 pytest
+schul-cloud-ressources-server-tests
