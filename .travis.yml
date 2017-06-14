@@ -20,7 +20,7 @@ script:
 - pip install dist/*.whl
 - python -m schul_cloud_search_tests.proxy 8081 /endpoint/ http://localhost:8080/v1/search/ &
 - sleep 2; python -m schul_cloud_search_tests.stop 8081
-- fg
+- ! fg
 
 before_deploy:
 - scripts/create_pypi_login_for_travis.sh
