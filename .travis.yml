@@ -18,9 +18,9 @@ script:
 # test installation
 - python setup.py sdist bdist_wheel
 - pip install dist/*.whl
-- python -m schul_cloud_search_tests.proxy 8081 /endpoint/ http://localhost:8080/v1/search/ &
-- sleep 2; python -m schul_cloud_search_tests.stop 8081
-- ! fg
+- python -m schul_cloud_search_tests.proxy 8081 /endpoint/ http://localhost:8080/v1/search/ & PID=$!
+- sleep 1; python -m schul_cloud_search_tests.stop 8081; sleep 1
+- ! wait $PID
 
 before_deploy:
 - scripts/create_pypi_login_for_travis.sh
