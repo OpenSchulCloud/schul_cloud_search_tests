@@ -5,7 +5,7 @@ import requests
 from schul_cloud_resources_server_tests.tests.fixtures import StoppableWSGIRefServerAdapter
 if "" in sys.path:
     sys.path.append(".")
-from schul_cloud_search_tests.tests import run_request_tests, run_response_tests
+from schul_cloud_search_tests.search_tests import run_request_tests, run_response_tests
 
 ENDPOINT_STOP = "/stop"
 REDIRECT_TO = "http://localhost:8080"
