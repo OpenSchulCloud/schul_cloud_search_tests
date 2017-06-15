@@ -8,7 +8,7 @@ your test is executed when the request arrives.
 """
 
 from pytest import fixture
-from schul_cloud_search_tests.tests import get_response
+from schul_cloud_search_tests.search_tests import get_response
 
 @fixture
 def request():
