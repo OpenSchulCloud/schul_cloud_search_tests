@@ -20,8 +20,7 @@ def test_response(target_url):
     print("query string:", request.query_string)
     response = requests.get(target_url + "?" + request.query_string)
     run_response_tests(response)
-	return response.body
-    
+    return response.body
 
 
 def main(host="0.0.0.0", port=8081, endpoint="/", target_url="http://localhost:8080"):
