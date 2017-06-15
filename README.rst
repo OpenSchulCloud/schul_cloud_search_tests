@@ -103,6 +103,38 @@ or run this command:
 The return code is zero (success) if all tests of all requests passed.
 If one test fails, it is a number greater than zero.
 
+Development Process
+-------------------
+
+The idea is stated in the `motivation blog post`_.
+We can use the tests to test the search engines.
+However, the tests can become complex and must be tested themselves.
+Therefore, the following development process is proposed.
+
+1. Have a look at the specification:
+
+   - The `Search API`_ describes how to request a search.
+   - The `Response Schema`_ describes what to expect as a response.
+   - The `Error Schema`_  describes what an error should look like.
+   
+   The specification is the most important document.
+   It determines what needs to be tested.
+
+2. Implement tests according to examples of the specification.
+   These tests are located in the `schul_cloud_search_tests/tests`_ folder.
+   They test how you would like to have the search proxy respond to the
+   different valid and invalid requests.
+
+3. Make the tests run.
+
+   - If it is a new condition under which a proxy request succeeds or fails,
+     you should implement these as tests in the `schul_cloud_search_tests/search_tests`_
+     folder.
+     These tests are executed when a search request goes through the proxy.
+   
+   - If this is a communication feature of the proxy, it must be described in
+     the `Specification`_ section.
+     The code in the `schul_cloud_search_tests/proxy.py`_ should be touched.
 
 Further Reading
 ---------------
@@ -118,3 +150,9 @@ and check it with `this editor <http://rst.ninjs.org/>`__.
 .. _Readme Driven Development: http://tom.preston-werner.com/2010/08/23/readme-driven-development.html
 .. _motivation blog post: https://schul-cloud.github.io/blog/2017-06-08/search-api-specification
 .. _Python: https://python.org
+.. _Search API: https://github.com/schul-cloud/resources-api-v1#search-api
+.. _Response Schema: https://github.com/schul-cloud/resources-api-v1/tree/master/schemas/search-response#readme
+.. _Error Schema: https://github.com/schul-cloud/resources-api-v1/tree/master/schemas/error#readme
+.. _schul_cloud_search_tests/proxy.py: https://github.com/schul-cloud/schul_cloud_search_tests/tree/master/schul_cloud_search_tests/proxy.py
+.. _schul_cloud_search_tests/search_tests: https://github.com/schul-cloud/schul_cloud_search_tests/tree/master/schul_cloud_search_tests/search_tests
+.. _schul_cloud_search_tests/tests: https://github.com/schul-cloud/schul_cloud_search_tests/tree/master/schul_cloud_search_tests/tests
