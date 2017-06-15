@@ -3,7 +3,7 @@ This file contains the test configuration like fixtures.
 """
 from pytest import fixture
 from schul_cloud_resources_server_tests.tests.fixtures import ParallelBottleServer
-from bottle import Bottle
+from bottle import Bottle, request
 import sys
 import os
 import requests
@@ -40,6 +40,7 @@ class SearchEngine(object):
         """Create a search engine object."""
         self._queries = {}
         self._app = Bottle()
+        self._app.get("/", callback=self._serve_request)
         self._reset_servers()
     
     def start(self):
@@ -86,6 +87,9 @@ class SearchEngine(object):
         """Remove all hosted responses."""
         self._queries = {}
 
+    def _serve_request(self):
+        """Serve a request to the search engine bottle server."""
+        return self._queries.get(request.query["q"])
 
 @fixture(scope="session")
 def search_engine_session():
