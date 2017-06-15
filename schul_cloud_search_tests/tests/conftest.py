@@ -99,6 +99,7 @@ class SearchEngine(object):
         """Serve a request to the search engine bottle server."""
         return self._queries.get(request.query["q"])
 
+
 @fixture(scope="session")
 def search_engine_session():
     """Return the server to store resources."""
