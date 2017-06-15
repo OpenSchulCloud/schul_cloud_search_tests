@@ -11,11 +11,8 @@ ENDPOINT_STOP = "/stop"
 REDIRECT_TO = "http://localhost:8080"
 
 
-app = Bottle()
-
-hook = app.hook
-
 def test_response(target_url):
+    """Test the request and the response to the search engine."""
     run_request_tests()
     print("query string:", request.query_string)
     response = requests.get(target_url + "?" + request.query_string)
@@ -23,23 +20,26 @@ def test_response(target_url):
     return response.body
 
 
-def main(host="0.0.0.0", port=8081, endpoint="/", target_url="http://localhost:8080"):
-    """Start the server."""
-    server = StoppableWSGIRefServerAdapter(host=host, port=port)
-    @hook('before_request')
-    def strip_path():
-        # from http://bottlepy.org/docs/dev/recipes.html#ignore-trailing-slashes
-        path = request.environ['PATH_INFO']
-        if path == ENDPOINT_STOP:
-            return
-        assert path.startswith(endpoint)
-        path = path[len(endpoint):]
-        if path[:1] != "/":
-            path = "/" + path
-        request.environ['PATH_INFO'] = path
+def get_app(endpoint="/", target_url="http://localhost:8080"):
+    """Return a bottle app that tests the request and the response."""
+    app = Bottle()
     app.get(endpoint, callback=lambda: test_response(target_url))
+    return app
+
+
+def run(app, host="0.0.0.0", port=8081):
+    """Run a stoppable bottle app."""
+    server = StoppableWSGIRefServerAdapter(host=host, port=port)
     app.get(ENDPOINT_STOP, callback=lambda: server.shutdown(blocking=False))
     app.run(debug=True, server=server)
+    
+
+
+def main(host="0.0.0.0", port=8081, endpoint="/", target_url="http://localhost:8080"):
+    """Start the server."""
+    app = get_app(endpoint=endpoint, target_url=target_url)
+    run(app, host=host, port=port)
+
 
 __all__ = ["main", "app"]
 
