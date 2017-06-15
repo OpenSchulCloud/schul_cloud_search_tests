@@ -7,6 +7,6 @@ set -e
 cd "`dirname \"$0\"`"
 
 cd ..
-pytest schul_cloud_search_tests\tests
+pytest schul_cloud_search_tests/tests
 
 
