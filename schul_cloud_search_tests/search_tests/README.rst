@@ -2,13 +2,6 @@ Search Tests
 ============
 
 These are the tests to run on every request.
-We use PyTest
-
-
-Search Tests
-============
-
-These are the tests to run on every request.
 We use PyTest_ to run the tests.
 
 There are two phases to execute tests:
