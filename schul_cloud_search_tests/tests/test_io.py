@@ -1,5 +1,5 @@
 from schul_cloud_resources_api_v1.schema import get_schemas
-from pytest import mark, xskip
+from pytest import mark
 from schul_cloud_search_tests.tests.assertions import assertIsError, ERROR_CLIENT_REQUEST
 
 
@@ -29,12 +29,11 @@ def test_parameter_must_be_positive_integer(search_engine, param, value):
     assertIsError(result.json(), ERROR_CLIENT_REQUEST)
     
     
-
+@mark.skip(reason="TODO")
 def test_q_is_a_required_query():
     """
     According to the Search API https://github.com/schul-cloud/resources-api-v1#search-api
     q is required
     """
-    xskip()
 
 
