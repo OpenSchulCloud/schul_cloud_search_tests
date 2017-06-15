@@ -15,15 +15,16 @@ app = Bottle()
 
 hook = app.hook
 
-def test_response():
+def test_response(target_url):
     run_request_tests()
     print("query string:", request.query_string)
-    response = "Tralalala"
+    response = requests.get(target_url + "?" + request.query_string)
     run_response_tests(response)
+	return response.body
     
 
 
-def main(host="0.0.0.0", port=8081, endpoint="/"):
+def main(host="0.0.0.0", port=8081, endpoint="/", target_url="http://localhost:8080"):
     """Start the server."""
     server = StoppableWSGIRefServerAdapter(host=host, port=port)
     @hook('before_request')
@@ -37,7 +38,7 @@ def main(host="0.0.0.0", port=8081, endpoint="/"):
         if path[:1] != "/":
             path = "/" + path
         request.environ['PATH_INFO'] = path
-    app.get(endpoint, callback=test_response)
+    app.get(endpoint, callback=lambda: test_response(target_url))
     app.get(ENDPOINT_STOP, callback=lambda: server.shutdown(blocking=False))
     app.run(debug=True, server=server)
 
