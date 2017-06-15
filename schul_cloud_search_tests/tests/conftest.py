@@ -27,6 +27,11 @@ class Requester(object):
         """Request the resource."""
         return requests.get(self._url)
 
+def ending_with_slash(url):
+    """Return the url with a slash in the end."""
+    if not url.endswith("/"):
+        url = url + "/"
+    return url
 
 class SearchEngine(object):
     """The search engine adapter.
@@ -52,12 +57,15 @@ class SearchEngine(object):
         
     @property
     def search_engine_url(self):
-        """Return the URL of the search engine."""
+        """Return the URL of the mocked search engine."""
         assert self.is_started()
-        url = self._server.url
-        if not url.endswith("/"):
-            url = url + "/"
-        return url
+        return ending_with_slash(self._server.url)
+
+    @property
+    def proxy_url(self):
+        """Return the url of the search engine tests proxy."""
+        assert self.is_started()
+        return ending_with_slash(self._search_server.url)
         
     def stop(self):
         """Stop the search engine tests and the mock server."""
@@ -80,7 +88,7 @@ class SearchEngine(object):
         """Host the response given by the query."""
         assert q not in self._queries
         self._queries[q] = response
-        request_url = self.search_engine_url + "?q=" + q
+        request_url = self.proxy_url + "?q=" + q
         return Requester(request_url)
     
     def clear(self):
