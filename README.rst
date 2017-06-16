@@ -18,7 +18,7 @@ schul_cloud_search_tests
    :alt: First Timers
 
 These are the tests for the `Schul-Cloud search API
-<https://github.com/schul-cloud/resources-api-v1/#search-api>`.
+<https://github.com/schul-cloud/resources-api-v1/#search-api>`__.
 You can read `motivation blog post`_ about
 
 - common tests for all search engines
