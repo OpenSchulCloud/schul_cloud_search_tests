@@ -8,7 +8,9 @@ your test is executed when the request arrives.
 """
 
 from pytest import fixture, hookimpl
-from schul_cloud_search_tests.search_tests import get_response, add_failing_test
+from schul_cloud_search_tests.search_tests import (
+    get_response, add_failing_test, get_request_url
+)
 import pytest
 
 
@@ -16,6 +18,7 @@ try:
     pytest.skip()
 except Exception as e:
     SKIP_ERROR = e.__class__
+
 
 @fixture
 def search():
@@ -29,13 +32,19 @@ def search():
 
 
 @fixture
-def response():
-    """The response of the query.
+def result():
+    """The response to the query.
     
     The response from the server.
     - http://docs.python-requests.org/en/master/api/#requests.Response
     """
     return get_response()
+
+
+@fixture
+def search_url():
+    """The url of the server to request searches from."""
+    return get_request_url()
 
 
 @fixture

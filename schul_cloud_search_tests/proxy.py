@@ -11,42 +11,52 @@ ENDPOINT_STOP = "/stop"
 REDIRECT_TO = "http://localhost:8080"
 
 
-def pytest_errors(status, errors=[]):
+def pytest_errors(errors, server_url, answer=None):
     """Return the formatted pytest errors, jsonapi compatible."""
-    return {
-              "errors":[
-                {
-                  "status": status,
-                  "title": "Conflict",
-                  "detail": "The request or response contained some errors."
-                }
-              ] + errors,
-              "jsonapi": {
-                "version": "1.0",
-                "meta": {
-                  "name": "shcul_cloud/schul_cloud_search_tests", 
-                  "source": 
-                    "https://github.com/schul-cloud/schul_cloud_search_tests",
-                  "description":
-                    "These are the tests for the search engines."
-                }
-              }
-            }
+    response.status = 409
+    result = {
+      "errors":[
+        {
+          "status": 409,
+          "title": "Conflict",
+          "detail": "The request or response contained some errors.",
+          "meta": {
+            "url": server_url,
+            "response": answer
+          }
+        }
+      ] + errors,
+      "jsonapi": {
+        "version": "1.0",
+        "meta": {
+          "name": "schul_cloud/schul_cloud_search_tests", 
+          "source": 
+            "https://github.com/schul-cloud/schul_cloud_search_tests",
+          "description":
+            "These are the tests for the search engines."
+        }
+      }
+    }
+    return result
 
 
 def test_response(target_url):
     """Test the request and the response to the search engine."""
     print("query string:", request.query_string)
-    errors = run_request_tests()
+    server_url = target_url + "?" + request.query_string
+    errors = run_request_tests(server_url)
     if errors:
-        response.status = 409
-        return pytest_errors(409, errors)
-    answer = requests.get(target_url + "?" + request.query_string)
-    errors = run_response_tests(answer)
+        return pytest_errors(errors, server_url)
+    answer = requests.get(server_url)
+    errors = run_response_tests(server_url, answer)
+    try:
+        result = answer.json()
+    except ():
+        result = None
     if errors:
-        response.status = 409
-        return pytest_errors(409, errors)
-    return answer.json()
+        return pytest_errors(errors, server_url, result)
+    assert result is not None, "The tests take care that there is a result."
+    return result
 
 
 def get_app(endpoint="/", target_url="http://localhost:8080"):
