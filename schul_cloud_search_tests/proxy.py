@@ -59,6 +59,11 @@ def test_response(target_url):
     return result
 
 
+def get_code():
+    """Return a directory listing or a static file."""
+    
+
+
 def get_app(endpoint="/", target_url="http://localhost:8080"):
     """Return a bottle app that tests the request and the response."""
     app = Bottle()
