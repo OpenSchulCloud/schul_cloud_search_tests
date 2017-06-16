@@ -7,6 +7,9 @@ from bottle import Bottle, request
 import sys
 import os
 import requests
+from urllib.parse import urlencode
+
+
 HERE = os.path.dirname(__file__)
 MODULE_ROOT = os.path.join(HERE, "..", "..")
 try:
@@ -27,11 +30,19 @@ class Requester(object):
         """Request the resource."""
         return requests.get(self._url)
 
+
 def ending_with_slash(url):
     """Return the url with a slash in the end."""
     if not url.endswith("/"):
         url = url + "/"
     return url
+
+
+def params_to_key(params):
+    """Return a tuple key for the parameters."""
+    key = list(params.items())
+    key.sort()
+    return tuple(key)
 
 class SearchEngine(object):
     """The search engine adapter.
@@ -84,12 +95,12 @@ class SearchEngine(object):
         """Return whether the server is started."""
         return self._server is not None
         
-    def host(self, response, q=""):
+    def host(self, response, params={}):
         """Host the response given by the query."""
-        assert q not in self._queries
-        self._queries[q] = response
-        request_url = self.proxy_url + "?q=" + q
-        return Requester(request_url)
+        key = params_to_key(params)
+        assert key not in self._queries
+        self._queries[key] = response
+        return self._new_requester(params)
     
     def clear(self):
         """Remove all hosted responses."""
@@ -97,7 +108,16 @@ class SearchEngine(object):
 
     def _serve_request(self):
         """Serve a request to the search engine bottle server."""
-        return self._queries.get(request.query["q"])
+        return self._queries.get(params_to_key(request.query))
+
+    def request(self, params={}):
+        """Request a search with parameters."""
+        return self._new_requester(params).request()
+        
+    def _new_requester(self, params):
+        """Return a new Requester object from the parameters."""
+        request_url = self.proxy_url + "?" + urlencode(params)
+        return Requester(request_url)
 
 
 @fixture(scope="session")

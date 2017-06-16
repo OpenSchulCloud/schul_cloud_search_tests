@@ -7,7 +7,7 @@ from schul_cloud_search_tests.tests.assertions import assertIsError, ERROR_CLIEN
 
 @mark.parametrize("response", get_schemas()["search-response"].get_valid_examples())
 def test_valid_query_is_returned(search_engine, response):
-    result = search_engine.host(response, q="test").request()
+    result = search_engine.host(response, {"q":"test"}).request()
     assert result.json() == response
 
 
@@ -24,8 +24,8 @@ def test_parameter_must_be_positive_integer(search_engine, param, value):
     - https://github.com/schul-cloud/schul_cloud_search_tests#specification
     the return code must be ERROR_CLIENT_REQUEST.
     """
-    result = search_engine.request(params={param:value})
-    assert result.status == ERROR_CLIENT_REQUEST
+    result = search_engine.request(params={param:value, "q":"test"})
+    assert result.status_code == ERROR_CLIENT_REQUEST
     assertIsError(result.json(), ERROR_CLIENT_REQUEST)
     
     

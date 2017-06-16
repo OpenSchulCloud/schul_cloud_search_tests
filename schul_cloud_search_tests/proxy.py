@@ -1,4 +1,4 @@
-from bottle import Bottle, request
+from bottle import Bottle, request, response
 import sys
 import os
 import requests
@@ -11,13 +11,40 @@ ENDPOINT_STOP = "/stop"
 REDIRECT_TO = "http://localhost:8080"
 
 
+def pytest_errors():
+    """Return the formatted pytest errors, jsonapi compatible."""
+    return {
+              "errors":[
+                {
+                  "status": 409,
+                  "title": "Conflict",
+                  "detail": "The request or response contained some errors."
+                }
+              ],
+              "jsonapi": {
+                "version": "1.0",
+                "meta": {
+                  "name": "shcul_cloud/schul_cloud_search_tests", 
+                  "source": 
+                    "https://github.com/schul-cloud/schul_cloud_search_tests",
+                  "description":
+                    "These are the tests for the search engines."
+                }
+              }
+            }
+
+
 def test_response(target_url):
     """Test the request and the response to the search engine."""
-    run_request_tests()
     print("query string:", request.query_string)
-    response = requests.get(target_url + "?" + request.query_string)
-    run_response_tests(response)
-    return response.json()
+    exit_code = run_request_tests()
+    if exit_code != 0:
+        # http://bottlepy.org/docs/dev/api.html?highlight=status#bottle.BaseResponse.status_code
+        response.status = 409
+        return pytest_errors()
+    answer = requests.get(target_url + "?" + request.query_string)
+    run_response_tests(answer)
+    return answer.json()
 
 
 def get_app(endpoint="/", target_url="http://localhost:8080"):
