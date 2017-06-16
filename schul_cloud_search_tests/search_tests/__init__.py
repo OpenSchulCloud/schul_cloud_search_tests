@@ -5,13 +5,27 @@ Run the tests.
 import pytest
 import os
 import threading
+import io
+import traceback
+import inspect
 
 HERE = os.path.dirname(__file__)
 
 
+def get_documentation(tb):
+    """Return the documentation from the first test functions found."""
+    while tb:
+        for func in tb.tb_frame.f_globals.values():
+            if inspect.isfunction(func) and \
+                    func.__name__.startswith("test_") and \
+                    func.__code__ == tb.tb_frame.f_code:
+                return func.__doc__
+        tb = tb.tb_next
+
+
 def run_request_tests():
     """Run the tests with the request."""
-    return pytest.main(["-m" "request", HERE])
+    return _run_tests_and_collect_errors(["-m" "request", HERE])
 
 
 _responses = threading.local()
@@ -20,10 +34,39 @@ def run_response_tests(response):
     """Run the tests with the request and response."""
     _responses.response = response
     try:
-        return pytest.main(["-m" "not request", HERE])
+        return _run_tests_and_collect_errors(["-m" "not request", HERE])
     finally:
         del _responses.response
+
 
 def get_response():
     """Return the currently working response."""
     return _responses.response
+
+
+def add_failing_test(ty, err, tb):
+    """Add a failing test to the tests of this request."""
+    file = io.StringIO()
+    traceback.print_exception(ty, err, tb, file=file)
+    tb_string = file.getvalue()
+    _responses.failing_tests.append({
+          "status": 500, 
+          "title": "Internal Server Error",
+          "detail": ty.__name__ + ": " + str(err),
+          "meta": {
+            "traceback" : tb_string,
+            "documentation": get_documentation(tb),
+            "error-class": ty.__module__ + "." + ty.__name__
+          }
+        })
+
+
+def _run_tests_and_collect_errors(args):
+    """Run the tests and collect the errors in these tests."""
+    _responses.failing_tests = []
+    try:
+        pytest.main(args)
+        return _responses.failing_tests
+    finally:
+        del _responses.failing_tests
+

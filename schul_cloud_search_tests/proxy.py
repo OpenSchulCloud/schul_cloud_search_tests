@@ -11,16 +11,16 @@ ENDPOINT_STOP = "/stop"
 REDIRECT_TO = "http://localhost:8080"
 
 
-def pytest_errors():
+def pytest_errors(status, errors=[]):
     """Return the formatted pytest errors, jsonapi compatible."""
     return {
               "errors":[
                 {
-                  "status": 409,
+                  "status": status,
                   "title": "Conflict",
                   "detail": "The request or response contained some errors."
                 }
-              ],
+              ] + errors,
               "jsonapi": {
                 "version": "1.0",
                 "meta": {
@@ -37,13 +37,15 @@ def pytest_errors():
 def test_response(target_url):
     """Test the request and the response to the search engine."""
     print("query string:", request.query_string)
-    exit_code = run_request_tests()
-    if exit_code != 0:
-        # http://bottlepy.org/docs/dev/api.html?highlight=status#bottle.BaseResponse.status_code
+    errors = run_request_tests()
+    if errors:
         response.status = 409
-        return pytest_errors()
+        return pytest_errors(409, errors)
     answer = requests.get(target_url + "?" + request.query_string)
-    run_response_tests(answer)
+    errors = run_response_tests(answer)
+    if errors:
+        response.status = 409
+        return pytest_errors(409, errors)
     return answer.json()
 
 

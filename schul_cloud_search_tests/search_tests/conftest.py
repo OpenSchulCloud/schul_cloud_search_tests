@@ -7,9 +7,15 @@ your test is executed when the request arrives.
 
 """
 
-from pytest import fixture
-from schul_cloud_search_tests.search_tests import get_response
+from pytest import fixture, hookimpl
+from schul_cloud_search_tests.search_tests import get_response, add_failing_test
+import pytest
 
+
+try:
+    pytest.skip()
+except Exception as e:
+    SKIP_ERROR = e.__class__
 
 @fixture
 def search():
@@ -42,3 +48,18 @@ def params(search):
     You can use params.get("q") to get the "q" parameter.
     """
     return search.query
+
+
+@hookimpl(hookwrapper=True)
+def pytest_pyfunc_call(pyfuncitem):
+    # From
+    # - https://docs.pytest.org/en/latest/writing_plugins.html#conftest-py-plugins
+    # Also see 
+    # - https://docs.pytest.org/en/latest/_modules/_pytest/vendored_packages/pluggy.html#_CallOutcome
+    # for outcome
+    
+    outcome = yield
+    # outcome.excinfo may be None or a (cls, val, tb) tuple
+    if outcome.excinfo is not None and outcome.excinfo[0] not in (SKIP_ERROR,):
+        add_failing_test(*outcome.excinfo)
+    res = outcome.get_result()
