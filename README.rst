@@ -17,7 +17,8 @@ schul_cloud_search_tests
    :target: http://firsttimers.quelltext.eu/repository/schul-cloud/schul_cloud_search_tests.html
    :alt: First Timers
 
-These are the tests for the Schul-Cloud search API.
+These are the tests for the `Schul-Cloud search API
+<https://github.com/schul-cloud/resources-api-v1/#search-api>`.
 You can read `motivation blog post`_ about
 
 - common tests for all search engines
