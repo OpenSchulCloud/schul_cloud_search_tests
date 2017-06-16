@@ -73,7 +73,6 @@ def run(app, host="0.0.0.0", port=8081):
     app.run(debug=True, server=server)
     
 
-
 def main(host="0.0.0.0", port=8081, endpoint="/", target_url="http://localhost:8080"):
     """Start the server."""
     app = get_app(endpoint=endpoint, target_url=target_url)

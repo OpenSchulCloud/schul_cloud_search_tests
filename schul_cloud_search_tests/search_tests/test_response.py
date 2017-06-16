@@ -26,8 +26,22 @@ def test_response_schema(result):
 @mark.skip(reason="TODO")
 def test_400_and_500_status_codes_have_the_jsonapi_design():
     """If the status code is 4XX, it contains a list of errors.
+
+    Schema:
+    - https://github.com/schul-cloud/resources-api-v1/tree/master/schemas/error
     """
 
 
+@mark.skip(reason="TODO")
+def test_all_parameter_names_are_jsonapi_compatible():
+    """If search engines add new parameters, they MUST be jsonapi compatible.
+    
+    See jsonapi
+    - http://jsonapi.org/format/#query-parameters
+    
+    This includes:
+    - parameter names
+    - filter[ATTRIBUTE.XX.YY....]
+    """
 
 
