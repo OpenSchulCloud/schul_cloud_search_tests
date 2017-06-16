@@ -35,5 +35,5 @@ def test_q_is_a_required_query():
     According to the Search API https://github.com/schul-cloud/resources-api-v1#search-api
     q is required
     """
-
+    
 

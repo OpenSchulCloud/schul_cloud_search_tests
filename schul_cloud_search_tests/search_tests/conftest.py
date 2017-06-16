@@ -21,3 +21,7 @@ def response():
     """The response of the query."""
     return get_response()
 
+@fixture
+def params(request):
+    """The query parameters."""
+    return request.query
