@@ -8,19 +8,21 @@ import threading
 import io
 import traceback
 import inspect
+from bottle import request
 
 HERE = os.path.dirname(__file__)
 _local = threading.local()
+SOURCE_BASE = "https://github.com/schul-cloud/schul_cloud_search_tests/tree/master/schul_cloud_search_tests"
 
 
-def get_documentation(tb):
+def get_test_function(tb):
     """Return the documentation from the first test functions found."""
     while tb:
         for func in tb.tb_frame.f_globals.values():
             if inspect.isfunction(func) and \
                     func.__name__.startswith("test_") and \
                     func.__code__ == tb.tb_frame.f_code:
-                return func.__doc__
+                return func
         tb = tb.tb_next
 
 
@@ -48,18 +50,36 @@ def get_request_url():
     return _local.request_url
 
 
+def get_source_url(function):
+    """Return the source url of the function where the source code resides."""
+    host = request.headers.get("host", None)
+    if host is None:
+        url = SOURCE_BASE
+    else:
+        url = "http://" + host + "/code"
+    base = os.path.abspath(os.path.dirname(HERE))
+    path = os.path.abspath(function.__globals__.get("__file__", ""))
+    if not path.startswith(base):
+        return None
+    return url + path[len(base):].replace("\\", "/")
+
+
 def add_failing_test(ty, err, tb):
     """Add a failing test to the tests of this request."""
     file = io.StringIO()
     traceback.print_exception(ty, err, tb, file=file)
     tb_string = file.getvalue()
+    test = get_test_function(tb)
     _local.failing_tests.append({
           "status": 500, 
           "title": "Internal Server Error",
           "detail": ty.__name__ + ": " + str(err),
           "meta": {
             "traceback" : tb_string,
-            "documentation": get_documentation(tb),
+            "documentation": (test.__doc__ if test else None),
+            "test_function": (test.__name__ if test else None),
+            "source": get_source_url(test),
+            "line": (test.__code__.co_firstlineno if test else None),
             "error-class": ty.__module__ + "." + ty.__name__
           }
         })

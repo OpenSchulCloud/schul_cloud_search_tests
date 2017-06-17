@@ -31,9 +31,13 @@ def test_q_is_a_required_query(search_engine):
     assert result.status_code == ERROR_CLIENT_REQUEST
     data = result.json()
     assertIsError(data, ERROR_CLIENT_REQUEST)
-    meta = data["errors"][0]["meta"]
-    assert meta["test_function"] == "test_request_has_query"
-    assert meta["source"] == search_engine.proxy_url + "code/search_tests/test_reqest.py"
+    errors = [error for error in data["errors"]
+             if error["meta"].get("test_function") == "test_request_has_query"]
+    assert errors, "There should be such an error function"
+    meta = errors[0]["meta"]
+    assert meta["source"] == search_engine.proxy_url + "code/search_tests/test_request.py"
+    from schul_cloud_search_tests.search_tests.test_request import test_request_has_query
+    assert meta["line"] == test_request_has_query.__code__.co_firstlineno
 
 
 
