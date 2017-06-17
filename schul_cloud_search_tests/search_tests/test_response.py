@@ -10,6 +10,7 @@ Please provide
 
 """
 from pytest import mark
+from schul_cloud_resources_api_v1.schema import get_schemas
 
 
 @mark.skip(reason="TODO")
@@ -30,6 +31,5 @@ def test_400_and_500_status_codes_have_the_jsonapi_design():
     Schema:
     - https://github.com/schul-cloud/resources-api-v1/tree/master/schemas/error
     """
-
 
 
