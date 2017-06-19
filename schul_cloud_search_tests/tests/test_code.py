@@ -18,16 +18,18 @@ HERE = os.path.dirname(__file__)
 
 
 @mark.parametrize("directory,content", [
-        ("/", ["proxy.py", "tests/", "search_tests/", "code.zip"]),
-        ("", ["proxy.py", "tests/", "search_tests/"]),
+        ("/", ["proxy.py"]),
         ("/tests/", ["__init__.py", "conftest.py", "test_code.py", "README.rst"]),
-        ("/search_tests/", ["__init_.py", "conftest.py", "test_links.py", "README.rst"]),
+        ("/search_tests/", ["__init__.py", "conftest.py", "test_links.py", "README.rst"]),
     ])
-def test_directories_are_listed(code_url, directory, content):
+@mark.parametrize("appendix", ["", "/"])
+def test_directories_are_listed(code_url, appendix, directory, content):
     """Make sure the files listed to view them."""
-    text = requests.get(code_url + directory).text
+    text = requests.get(code_url + appendix).text
+    print(text)
     for entry in content:
-        assert "<a href=\"{}\"".format(entry) in text
+        included_text = "<a href=\"/code{}{}\"".format(directory, entry)
+        assert included_text in text
 
 
 @mark.parametrize("file,url", [
@@ -42,7 +44,7 @@ def test_can_download_files(code_url, file, url):
     assert response.text == expected_text
 
 
-def test_can_download_joined_zip_file():
+def test_can_download_joined_zip_file(code_url):
     """The request to /code.zip redirects to the package name zip file."""
     response = requests.get(code_url + ".zip")
     assert response.url.endswith("schul_cloud_search_tests.zip")
@@ -53,6 +55,11 @@ def test_listing_links_to_repository(code_url):
     response = requests.get(code_url)
     assert "<a href=\"https://github.com/schul-cloud/schul_cloud_search_tests\"" in response.text
 
+
+def test_source_code_download_link_is_in_listing(code_url):
+    """Make sure users can download the current code."""
+    response = requests.get(code_url)
+    assert "<a href=\"/code.zip\"" in response.text
 
 def test_source_link_of_search_engine_refers_to_source_endpoint(
         search_engine, code_url):

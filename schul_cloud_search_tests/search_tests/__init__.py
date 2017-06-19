@@ -50,18 +50,21 @@ def get_request_url():
     return _local.request_url
 
 
-def get_source_url(function):
+def get_source_url(function, base=None):
     """Return the source url of the function where the source code resides."""
-    host = request.headers.get("host", None)
-    if host is None:
-        url = SOURCE_BASE
+    if base is None:
+        host = request.headers.get("host", None)
+        if host is None:
+            url = SOURCE_BASE
+        else:
+            url = "http://" + host + "/code"
     else:
-        url = "http://" + host + "/code"
+        url = base
     base = os.path.abspath(os.path.dirname(HERE))
     path = os.path.abspath(function.__globals__.get("__file__", ""))
     if not path.startswith(base):
         return None
-    return url + path[len(base):].replace("\\", "/")
+    return url + path[len(base):].replace("\\", "/") + "#L" + str(function.__code__.co_firstlineno)
 
 
 def add_failing_test(ty, err, tb):
@@ -73,14 +76,16 @@ def add_failing_test(ty, err, tb):
     _local.failing_tests.append({
           "status": 500, 
           "title": "Internal Server Error",
-          "detail": ty.__name__ + ": " + str(err),
+          "detail": ty.__name__ + ": " + str(err.args[0]),
           "meta": {
             "traceback" : tb_string,
             "documentation": (test.__doc__ if test else None),
             "test_function": (test.__name__ if test else None),
-            "source": get_source_url(test),
-            "line": (test.__code__.co_firstlineno if test else None),
-            "error-class": ty.__module__ + "." + ty.__name__
+            "source": (get_source_url(test) if test else None),
+            "source-line": (test.__code__.co_firstlineno if test else None),
+            "error-class": ty.__module__ + "." + ty.__name__,
+            "error": str(err),
+            "github-url": (get_source_url(test, SOURCE_BASE) if test else None),
           }
         })
 
