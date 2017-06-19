@@ -17,21 +17,16 @@ from pytest import mark
 import pytest
 import re
 
-JSONAPI_GLOBALLY_ALLOWED = "[a-zA-Z0-9]"
-JSONAPI_ADDITIONAL = "[a-zA-Z0-9_ -]"
-JSONAPI_ATTRIBUTE = re.compile(r"^(sort|filter\[.*\]|page\[(offset|limit)\]|"
-    ")$")
-
 
 @mark.request
 def test_request_has_query(params):
-    """Test that the query includes a "q".
+    """Test that the query includes a "Q".
     
     This is specified here:
     - https://github.com/schul-cloud/resources-api-v1/#search-api
     """
-    assert params.get("q") is not None, (
-        "Please pass a query string to with q=... to the request.")
+    assert params.get("Q") is not None, (
+        "Please pass a query string to with Q=... to the request.")
 
 
 @mark.request
@@ -66,8 +61,11 @@ def test_json_api_content_type_is_accepted(search):
     without parameters.
     """
 
+JSONAPI_ATTRIBUTE = re.compile("^(sort|filter\\[.+\\]|page\\[(offset|limit)\\])$")
 
-def test_all_parameter_names_are_jsonapi_compatible(search):
+
+
+def test_all_parameter_names_are_jsonapi_compatible(params):
     """If search engines add new parameters, they MUST be jsonapi compatible.
     
     See jsonapi
@@ -77,5 +75,14 @@ def test_all_parameter_names_are_jsonapi_compatible(search):
     - parameter names
     - filter[ATTRIBUTE.XX.YY....]
     """
-    for attr in search:
-        assert JSONAPI_ATTRIBUTE.match(attr)
+    for parameter in params:
+        assert parameter, "The parameter must be named \"{}\".".format(parameter)
+        for character in (parameter[0], parameter[-1]):
+            assert character not in ["-", "_", " "], "Additionally, the following characters are allowed in member names, except as the first or last character: U+002D HYPHEN-MINUS, “-“, U+005F LOW LINE, “_”, and U+0020 SPACE, “ “ (not recommended, not URL safe)"
+        has_non_az_character = False
+        is_jsonapi_parameter = bool(JSONAPI_ATTRIBUTE.match(parameter))
+        for character in parameter:
+            assert is_jsonapi_parameter or character not in '+,.[]!"#$%&\'()*/:;<=>?@\\^`{|}~\x7f\x00\x1f', "The following characters MUST NOT be used in member names: " + '\'+\', \',\', \'.\', \'[\', \']\', \'!\', \'"\', \'#\', \'$\', \'%\', \'&\', "\'", \'(\', \')\', \'*\', \'/\', \':\', \';\', \'<\', \'=\', \'>\', \'?\', \'@\', \'\\\\\', \'^\', \'`\', \'{\', \'|\', \'}\', \'~\', \'\\x7f\', \'\\x00\', \'\\x1f\''
+            has_non_az_character = has_non_az_character or character < "a"
+            has_non_az_character = has_non_az_character or "z" < character
+        assert is_jsonapi_parameter or has_non_az_character, "Implementation specific query parameters MUST adhere to the same constraints as member names with the additional requirement that they MUST contain at least one non a-z character (U+0061 to U+007A). Parameter \"{}\"".format(parameter)
