@@ -132,13 +132,13 @@ class SearchEngine(object):
     def clear(self):
         """Remove all hosted responses."""
         self._queries = {}
-        self.last_response = None
+        self._last_response = None
 
     def _serve_request(self):
         """Serve a request to the search engine bottle server."""
         default = self.get_default_response(request.query_string)
         response = self._queries.get(params_to_key(request.query), default)
-        self.last_response = response
+        self._last_response = response
         return response
 
     def request(self, params={}):
@@ -156,6 +156,14 @@ class SearchEngine(object):
         url = self.search_engine_url + "?" + query_string
         result["links"]["self"]["href"] = url
         return result
+        
+    @property
+    def last_response(self):
+        """Return the last reponse of the search engine to a request.
+        
+        If there was no request, None is returned.
+        """
+        return self._last_response
 
 
 @fixture(scope="session")

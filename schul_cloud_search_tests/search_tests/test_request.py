@@ -15,6 +15,12 @@ Please provide
 """
 from pytest import mark
 import pytest
+import re
+
+JSONAPI_GLOBALLY_ALLOWED = "[a-zA-Z0-9]"
+JSONAPI_ADDITIONAL = "[a-zA-Z0-9_ -]"
+JSONAPI_ATTRIBUTE = re.compile(r"^(sort|filter\[.*\]|page\[(offset|limit)\]|"
+    ")$")
 
 
 @mark.request
@@ -61,8 +67,7 @@ def test_json_api_content_type_is_accepted(search):
     """
 
 
-@mark.skip(reason="TODO")
-def test_all_parameter_names_are_jsonapi_compatible():
+def test_all_parameter_names_are_jsonapi_compatible(search):
     """If search engines add new parameters, they MUST be jsonapi compatible.
     
     See jsonapi
@@ -72,3 +77,5 @@ def test_all_parameter_names_are_jsonapi_compatible():
     - parameter names
     - filter[ATTRIBUTE.XX.YY....]
     """
+    for attr in search:
+        assert JSONAPI_ATTRIBUTE.match(attr)

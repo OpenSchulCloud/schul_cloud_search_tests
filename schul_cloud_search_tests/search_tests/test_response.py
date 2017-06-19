@@ -33,3 +33,10 @@ def test_400_and_500_status_codes_have_the_jsonapi_design():
     """
 
 
+@mark.skip(reason="TODO")
+def test_the_content_type_is_from_the_jsonapi():
+    """Make sure the returned content type is specified and expected.
+    
+    See here:
+    - http://jsonapi.org/format/#content-negotiation-clients
+    """
