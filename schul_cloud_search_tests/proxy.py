@@ -14,6 +14,7 @@ REDIRECT_TO = "http://localhost:8080"
 def pytest_errors(errors, server_url, answer=None):
     """Return the formatted pytest errors, jsonapi compatible."""
     response.status = 409
+    code = "http://" + request.headers["host"] + "/code"
     result = {
       "errors":[
         {
@@ -30,8 +31,7 @@ def pytest_errors(errors, server_url, answer=None):
         "version": "1.0",
         "meta": {
           "name": "schul_cloud/schul_cloud_search_tests", 
-          "source": 
-            "https://github.com/schul-cloud/schul_cloud_search_tests",
+          "source": code,
           "description":
             "These are the tests for the search engines."
         }
