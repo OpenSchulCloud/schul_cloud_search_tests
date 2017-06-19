@@ -8,6 +8,7 @@ import sys
 import os
 import requests
 from urllib.parse import urlencode
+import copy
 
 
 HERE = os.path.dirname(__file__)
@@ -51,6 +52,32 @@ class SearchEngine(object):
     - the running search tests server
     - a bottle server returning the registeres responses
     """
+    
+    _default_response = {
+      "jsonapi": {
+        "version": "1.0",
+        "meta" : {
+          "name": "Example Server",
+          "source": "https://github.com/schul-cloud/resources-api-v1",
+          "description": "This is just an eampel server for the search API."
+        }
+      },
+      "links": {
+        "self": {
+          "href": None,
+          "meta": {
+            "count": 0,
+            "offset": 0,
+            "limit": 0
+          }
+        },
+        "first": None,
+        "last": None,
+        "prev": None,
+        "next": None
+      },
+      "data": []
+    }
 
     def __init__(self):
         """Create a search engine object."""
@@ -105,10 +132,14 @@ class SearchEngine(object):
     def clear(self):
         """Remove all hosted responses."""
         self._queries = {}
+        self.last_response = None
 
     def _serve_request(self):
         """Serve a request to the search engine bottle server."""
-        return self._queries.get(params_to_key(request.query))
+        default = self.get_default_response(request.query_string)
+        response = self._queries.get(params_to_key(request.query), default)
+        self.last_response = response
+        return response
 
     def request(self, params={}):
         """Request a search with parameters."""
@@ -118,6 +149,13 @@ class SearchEngine(object):
         """Return a new Requester object from the parameters."""
         request_url = self.proxy_url + "?" + urlencode(params)
         return Requester(request_url)
+        
+    def get_default_response(self, query_string):
+        """Return the default response to a query."""
+        result = copy.deepcopy(self._default_response)
+        url = self.search_engine_url + "?" + query_string
+        result["links"]["self"]["href"] = url
+        return result
 
 
 @fixture(scope="session")

@@ -11,3 +11,24 @@ def test_valid_query_is_returned(search_engine, response):
     pprint(data)
     assert data == response
 
+
+@mark.skip(reason="TODO")
+def test_invalid_return_values_are_handled():
+    """Test that a invalid responses still create a useful output.
+    
+    - invalid json
+    - valid json but too small
+    - bytes
+    """
+
+
+@mark.skip(reason="TODO")
+def test_invalid_return_header_type_is_handled():
+    """The header must be correct.
+    
+    Wrong headers:
+    - with parameters
+    - application/json
+    """
+
+

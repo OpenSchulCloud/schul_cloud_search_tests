@@ -41,4 +41,35 @@ def test_q_is_a_required_query(search_engine):
     assert meta["source-line"] == test_request_has_query.__code__.co_firstlineno
 
 
+@mark.parametrize("parameter,parameter_is_correct", [
+        ("asd", False),
+        ("start- _abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", True),
+        ("", True),
+        ("asdA", True),
+        ("asd-a", True),
+        ("asd a", True),
+        ("asd_a", True),
+        ("asd-", False),
+        ("asd ", False),
+        ("asd_", False),
+        ("page[offset]", True),
+        ("page[limit]", True),
+        ("page[asdas]", False),
+        ("sort", True),
+        ("filter[asdsa]", True),
+        ("filter[]", False),
+        ("filter[a.b]", True),
+        ("filter[", False),
+        ("родина", True),
+        ("родина", True),
+    ])
+def test_all_parameter_names_are_jsonapi_compatible(
+        search_engine, parameter, parameter_is_correct):
+    """make sure the valid and invalid parameters are fed back."""
+    response = search_engine.request({parameter:"4", "q":"test"})
+    json = response.json()
+    if parameter_is_correct:
+        assert json == search_engine.last_response
+    else:
+        assertIsError(json, ERROR_CLIENT_REQUEST)
 

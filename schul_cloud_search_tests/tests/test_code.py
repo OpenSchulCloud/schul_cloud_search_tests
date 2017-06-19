@@ -61,6 +61,7 @@ def test_source_code_download_link_is_in_listing(code_url):
     response = requests.get(code_url)
     assert "<a href=\"/code.zip\"" in response.text
 
+
 def test_source_link_of_search_engine_refers_to_source_endpoint(
         search_engine, code_url):
     """Test that the source link of the response of the search engine
@@ -68,4 +69,3 @@ def test_source_link_of_search_engine_refers_to_source_endpoint(
     response = search_engine.request({})
     source = response.json()["jsonapi"]["meta"]["source"]
     assert source == code_url
-
