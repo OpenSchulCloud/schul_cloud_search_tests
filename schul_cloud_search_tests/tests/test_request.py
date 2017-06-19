@@ -65,8 +65,8 @@ def test_q_is_a_required_query(search_engine):
         ("filter[]", False),
         ("filter[a.b]", True),
         ("filter[", False),
- #       ("родина", True),
- #       ("родина", True),
+        ("родина", True),
+        ("родина", True),
     ])
 def test_all_parameter_names_are_jsonapi_compatible(
         search_engine, parameter, parameter_is_correct):
