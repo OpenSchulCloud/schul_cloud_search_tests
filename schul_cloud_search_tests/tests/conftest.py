@@ -135,3 +135,9 @@ def search_engine(search_engine_session):
     search_engine_session.clear()
     yield search_engine_session
     search_engine_session.clear()
+
+
+@fixture
+def code_url(search_engine):
+    """Return the url of the code enpoint."""
+    return search_engine.proxy_url + "code"
