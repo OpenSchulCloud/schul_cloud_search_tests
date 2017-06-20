@@ -44,11 +44,28 @@ def result():
 
 @fixture
 def json(result):
-    """Return the result as a json object."""
+    """Return the response as json."""
     try:
         return result.json()
     except:
-        pytest.skip(reason="The result is not a valid json object. {}".format(result.content))
+        pytest.skip("The result is not a valid json object. {}"
+                           .format(result.content))
+
+
+@fixture
+def search_response(json, result):
+    """Return the search response."""
+    if not result.ok:
+        pytest.skip("This is not a search response.")
+    return json
+
+
+@fixture
+def error(json, result):
+    """Return the error response."""
+    if result.ok:
+        pytest.skip("This is not an error response.")
+    return json
 
 
 @fixture

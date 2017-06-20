@@ -101,6 +101,7 @@ def test_response(target_url):
     if errors:
         return pytest_errors(409, errors, server_url, result)
     assert result is not None, "The tests take care that there is a result."
+    response.status = answer.status_code
     return result
 
 

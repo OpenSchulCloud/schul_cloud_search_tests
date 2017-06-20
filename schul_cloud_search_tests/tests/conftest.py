@@ -3,12 +3,14 @@ This file contains the test configuration like fixtures.
 """
 from pytest import fixture
 from schul_cloud_resources_server_tests.tests.fixtures import ParallelBottleServer
-from bottle import Bottle, request
+from bottle import Bottle, request, response
 import sys
 import os
 import requests
 from urllib.parse import urlencode
 import copy
+from schul_cloud_search_tests.tests.assertions import Q
+import json
 
 
 HERE = os.path.dirname(__file__)
@@ -18,6 +20,10 @@ try:
 except ImportError:
     sys.path.append(MODULE_ROOT)
 from schul_cloud_search_tests.proxy import get_app
+
+
+DEFAULT_HEADERS = {}
+DEFAULT_STATUS_CODE = 200
 
 
 class Requester(object):
@@ -122,11 +128,21 @@ class SearchEngine(object):
         """Return whether the server is started."""
         return self._server is not None
         
-    def host(self, response, params={}):
-        """Host the response given by the query."""
+    def host(self,
+             response=None,
+             params={Q:"test"},
+             headers=DEFAULT_HEADERS,
+             status_code=DEFAULT_STATUS_CODE):
+        """Host the response given by the query.
+        
+        Default headers are 
+        - "Content-Type": "application/vnd.api+json"
+        """
+        if response is None:
+            response = self.get_default_response(params)
         key = params_to_key(params)
         assert key not in self._queries
-        self._queries[key] = response
+        self._queries[key] = (response, headers, status_code)
         return self._new_requester(params)
     
     def clear(self):
@@ -136,10 +152,24 @@ class SearchEngine(object):
 
     def _serve_request(self):
         """Serve a request to the search engine bottle server."""
-        default = self.get_default_response(request.query_string)
-        response = self._queries.get(params_to_key(request.query), default)
-        self._last_response = response
-        return response
+        default = object()
+        key = params_to_key(request.query)
+        result = self._queries.get(key, default)
+        if result is default:
+            json_response = self.get_default_response(request.query_string)
+            headers = DEFAULT_HEADERS
+            status_code = DEFAULT_STATUS_CODE
+        else:
+            json_response, headers, status_code = result
+        self._last_response = json_response
+        default_headers = {"Content-Type": "application/vnd.api+json"}
+        default_headers.update(headers)
+        for header, value in default_headers.items():
+            response.set_header(header, value)
+        response.status = status_code
+        if isinstance(json_response, dict):
+            return json.dumps(json_response)
+        return json_response
 
     def request(self, params={}):
         """Request a search with parameters."""
@@ -150,10 +180,15 @@ class SearchEngine(object):
         request_url = self.proxy_url + "?" + urlencode(params)
         return Requester(request_url)
         
-    def get_default_response(self, query_string):
-        """Return the default response to a query."""
+    def get_default_response(self, query):
+        """Return the default response to a query.
+        
+        The query can be given as string or as dict.
+        """
+        if not isinstance(query, str):
+            query = urlencode(query)
         result = copy.deepcopy(self._default_response)
-        url = self.search_engine_url + "?" + query_string
+        url = self.search_engine_url + "?" + query
         result["links"]["self"]["href"] = url
         return result
         

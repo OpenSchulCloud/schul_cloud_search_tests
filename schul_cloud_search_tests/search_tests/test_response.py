@@ -26,7 +26,7 @@ def test_result_is_json(result):
         assert isinstance(json, dict), "The result must be a json object, not {}".format(json)
 
 
-def test_response_schema(json):
+def test_response_schema(search_response):
     """If the request was successful, it must match the search-response schema.
     
     Schema:
@@ -34,12 +34,12 @@ def test_response_schema(json):
     
     The response is successful of a status code 200 is returned.
     """
-    search_response = get_schemas()["search-response"]
-    search_response.validate(json)
+    schema = get_schemas()["search-response"]
+    schema.validate(search_response)
     
 
 @mark.skip(reason="TODO")
-def test_400_and_500_status_codes_have_the_jsonapi_design():
+def test_400_and_500_status_codes_have_the_jsonapi_design(error):
     """If the status code is 4XX, it contains a list of errors.
 
     Schema:
@@ -47,10 +47,10 @@ def test_400_and_500_status_codes_have_the_jsonapi_design():
     """
 
 
-@mark.skip(reason="TODO")
-def test_the_content_type_is_from_the_jsonapi():
+def test_the_content_type_is_from_the_jsonapi(result):
     """Make sure the returned content type is specified and expected.
     
     See here:
     - http://jsonapi.org/format/#content-negotiation-clients
     """
+    assert result.headers.get("Content-Type", "") == "application/vnd.api+json", "The content type of the server reply must be application/vnd.api+json."
