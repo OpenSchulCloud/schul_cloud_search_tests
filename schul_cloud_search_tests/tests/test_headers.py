@@ -12,7 +12,6 @@ INVALID_ACCEPT_HEADERS = [
     ]
 
 
-@mark.current
 @mark.parametrize("invalid_accept_header", INVALID_ACCEPT_HEADERS)
 def test_detect_invalid_accept_headers(
         search_engine, invalid_accept_header):
@@ -32,10 +31,6 @@ def test_detect_invalid_accept_headers(
     result = search_engine.request(headers={"Accept":invalid_accept_header})
     assertIsError(result, ERROR_SERVER_RESPONSE)
 
-
-@mark.skip(reason="TODO: Add these tests to the issue that the invalid requests are sent and tested to all search engines.")
-def test():
-    pass
 
 @mark.parametrize("invalid_accept_header", INVALID_ACCEPT_HEADERS)
 def test_server_responds_with_406_and_is_passed_through(

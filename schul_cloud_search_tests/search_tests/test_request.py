@@ -43,23 +43,6 @@ def test_integer_parameters(params, parameter):
     assert value.isdigit(), (
         "The parameter {} must be a positive integer, not {}."
         .format(parameter, value))
-
-
-@mark.request
-@mark.skip(reason="TODO")
-def test_json_api_content_type_is_accepted(search):
-    """Make sure the Accept header allows application/vnd.api+json
-    
-    This is because the search api is jsonapi compatible.
-    - https://github.com/schul-cloud/resources-api-v1/#search-api
-    - http://jsonapi.org/format/#content-negotiation-servers
-    
-    Test for the existence of
-    - application/vnd.api+json
-    - application/*
-    - */*
-    without parameters.
-    """
     
 
 JSONAPI_ATTRIBUTE = re.compile("^(sort|filter\\[.+\\]|page\\[(offset|limit)\\])$")

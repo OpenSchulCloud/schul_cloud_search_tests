@@ -56,6 +56,7 @@ def test_the_content_type_is_from_the_jsonapi(result):
     """
     assert result.headers.get("Content-Type", "") == "application/vnd.api+json", "The content type of the server reply must be application/vnd.api+json."
 
+
 def test_406_error_is_expected_in_case_of_invalid_accept_headers(
         search, result, json):
     """If the client does not acccept application/vnd.api+json, 
