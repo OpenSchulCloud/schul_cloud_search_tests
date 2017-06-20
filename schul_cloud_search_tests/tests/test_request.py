@@ -1,6 +1,7 @@
 from schul_cloud_resources_api_v1.schema import get_schemas
 from pytest import mark
-from schul_cloud_search_tests.tests.assertions import assertIsError, ERROR_CLIENT_REQUEST
+from schul_cloud_search_tests.tests.assertions import (
+    assertIsError, ERROR_CLIENT_REQUEST, Q)
 from pprint import pprint
 
 
@@ -17,7 +18,7 @@ def test_parameter_must_be_positive_integer(search_engine, param, value):
     - https://github.com/schul-cloud/schul_cloud_search_tests#specification
     the return code must be ERROR_CLIENT_REQUEST.
     """
-    result = search_engine.request(params={param:value, "q":"test"})
+    result = search_engine.request(params={param:value, Q:"test"})
     assert result.status_code == ERROR_CLIENT_REQUEST
     assertIsError(result.json(), ERROR_CLIENT_REQUEST)
     
@@ -71,7 +72,7 @@ def test_q_is_a_required_query(search_engine):
 def test_all_parameter_names_are_jsonapi_compatible(
         search_engine, parameter, parameter_is_correct):
     """make sure the valid and invalid parameters are fed back."""
-    response = search_engine.request({parameter:"4", "Q":"test"})
+    response = search_engine.request({parameter:"4", Q:"test"})
     json = response.json()
     pprint(json)
     if parameter_is_correct:
