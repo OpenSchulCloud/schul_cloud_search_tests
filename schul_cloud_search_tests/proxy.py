@@ -63,7 +63,7 @@ def pytest_errors(status, errors, server_url, answer=None):
     result = {
       "errors":[
         {
-          "status": status,
+          "status": str(status),
           "title": error_text,
           "detail": "The request or response contained some errors.",
           "meta": {

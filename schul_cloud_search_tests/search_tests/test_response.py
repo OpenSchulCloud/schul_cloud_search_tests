@@ -38,14 +38,16 @@ def test_response_schema(search_response):
     schema.validate(search_response)
     
 
-@mark.skip(reason="TODO")
-def test_400_and_500_status_codes_have_the_jsonapi_design(error):
+def test_400_and_500_status_codes_have_the_jsonapi_design(error, result):
     """If the status code is 4XX, it contains a list of errors.
 
     Schema:
     - https://github.com/schul-cloud/resources-api-v1/tree/master/schemas/error
     """
-
+    schema = get_schemas()["error"]
+    schema.validate(error)
+    assert str(result.status_code) == error["errors"][0]["status"]
+    
 
 def test_the_content_type_is_from_the_jsonapi(result):
     """Make sure the returned content type is specified and expected.

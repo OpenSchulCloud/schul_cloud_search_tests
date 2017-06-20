@@ -63,14 +63,23 @@ def test_invalid_return_header_type_is_handled(search_engine, content_type):
         (503, 'Service Unavailable'),
         (504, 'Gateway Timeout'),
     ])
-def test_400_and_500_status_codes_have_the_jsonapi_design(
+def test_400_and_500_status_codes_pass_through(
         search_engine, code, name):
     """Test that the error has the right format and is passed through directly."""
     error = copy.deepcopy(ERROR)
-    error["errors"][0]["status"] = code
+    error["errors"][0]["status"] = str(code)
     error["errors"][0]["title"] = name
     assertIsError(error, code)
     response = search_engine.host(error, status_code=code).request()
     assert response.status_code == code
     assert error == response.json()
+
+
+@mark.parametrize("code", [200, 201, 301, 466, 588])
+def test_status_code_and_error_code_must_match(search_engine, code):
+    """The serach engine detects of the returned error
+    and the status code do not match.
+    """
+    result = search_engine.host(ERROR, status_code=code).request()
+    assertIsError(result, ERROR_SERVER_RESPONSE)
 
