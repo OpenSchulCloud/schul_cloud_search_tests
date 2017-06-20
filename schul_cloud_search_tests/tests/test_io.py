@@ -51,7 +51,6 @@ def test_invalid_return_header_type_is_handled(search_engine, content_type):
     result = search_engine.host(headers={"Content-Type":content_type}).request()
     assertIsError(result, ERROR_SERVER_RESPONSE)
 
-@mark.current
 @mark.parametrize("code,name", [
         (400, 'Bad Request'),
         (401, 'Unauthorized'), 
