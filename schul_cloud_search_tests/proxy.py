@@ -85,14 +85,14 @@ def pytest_errors(status, errors, server_url, answer=None):
     return result
 
 
-def test_response(target_url):
+def check_response(target_url):
     """Test the request and the response to the search engine."""
     print("query string:", request.query_string)
     server_url = target_url + "?" + request.query_string
     errors = run_request_tests(server_url)
     if errors:
         return pytest_errors(400, errors, server_url)
-    answer = requests.get(server_url)
+    answer = requests.get(server_url, headers=request.headers)
     errors = run_response_tests(server_url, answer)
     try:
         result = answer.json()
@@ -127,7 +127,7 @@ def get_code(path=None, ending=None):
 def get_app(endpoint="/", target_url="http://localhost:8080"):
     """Return a bottle app that tests the request and the response."""
     app = Bottle()
-    app.get(endpoint, callback=lambda: test_response(target_url))
+    app.get(endpoint, callback=lambda: check_response(target_url))
     for code_endpoint in ENDPOINT_CODE:
         app.get(code_endpoint, callback=get_code)
     return app

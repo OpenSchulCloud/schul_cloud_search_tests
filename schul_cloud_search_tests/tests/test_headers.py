@@ -69,3 +69,14 @@ def test_allow_list_of_accept_headers(search_engine, valid_accept_header):
     response = search_engine.request(headers={"Accept":valid_accept_header})
     result = response.json()
     assert result == search_engine.last_response
+
+
+@mark.parametrize("headers", [
+        {"Xsss": "23423"},
+        {"Accept": "application/json"},
+        {"Authorization": "basic basic===", "X-Asd": "22"},
+    ])
+def test_search_engine_passes_headers_through(search_engine, headers):
+    search_engine.request(headers=headers)
+    for key, value in headers.items():
+        assert search_engine.last_request_headers[key] == value

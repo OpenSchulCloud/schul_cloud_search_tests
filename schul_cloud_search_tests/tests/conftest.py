@@ -150,11 +150,13 @@ class SearchEngine(object):
         """Remove all hosted responses."""
         self._queries = {}
         self._last_response = None
+        self._last_request_headers = None
 
     def _serve_request(self):
         """Serve a request to the search engine bottle server."""
         default = object()
         key = params_to_key(request.query)
+        self._last_request_headers = dict(request.headers)
         result = self._queries.get(key, default)
         if result is default:
             json_response = self.get_default_response(request.query_string)
@@ -202,6 +204,14 @@ class SearchEngine(object):
         If there was no request, None is returned.
         """
         return self._last_response
+
+    @property
+    def last_request_headers(self):
+        """Return the last request headers of the search engine in a request.
+        
+        If there was no request, None is returned.
+        """
+        return self._last_request_headers
 
 
 @fixture(scope="session")
