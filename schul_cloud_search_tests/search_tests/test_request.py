@@ -64,7 +64,7 @@ def test_json_api_content_type_is_accepted(search):
 JSONAPI_ATTRIBUTE = re.compile("^(sort|filter\\[.+\\]|page\\[(offset|limit)\\])$")
 
 
-
+@mark.request
 def test_all_parameter_names_are_jsonapi_compatible(params):
     """If search engines add new parameters, they MUST be jsonapi compatible.
     

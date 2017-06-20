@@ -5,6 +5,7 @@ import sys
 import os
 import shutil
 import requests
+from json import JSONDecodeError
 from schul_cloud_resources_server_tests.tests.fixtures import StoppableWSGIRefServerAdapter
 if "" in sys.path:
     sys.path.append(".")
@@ -54,15 +55,16 @@ LISTING_TEMPLATE = SimpleTemplate(
 """)
 
 
-def pytest_errors(errors, server_url, answer=None):
+def pytest_errors(status, errors, server_url, answer=None):
     """Return the formatted pytest errors, jsonapi compatible."""
-    response.status = 400
+    response.status = status
+    error_text = ("Bad Request" if status == 400 else "Conflict")
     code = "http://" + request.headers["host"] + "/code"
     result = {
       "errors":[
         {
-          "status": 400,
-          "title": "Bad Request",
+          "status": status,
+          "title": error_text,
           "detail": "The request or response contained some errors.",
           "meta": {
             "url": server_url,
@@ -89,15 +91,15 @@ def test_response(target_url):
     server_url = target_url + "?" + request.query_string
     errors = run_request_tests(server_url)
     if errors:
-        return pytest_errors(errors, server_url)
+        return pytest_errors(400, errors, server_url)
     answer = requests.get(server_url)
     errors = run_response_tests(server_url, answer)
     try:
         result = answer.json()
-    except ():
+    except (JSONDecodeError):
         result = None
     if errors:
-        return pytest_errors(errors, server_url, result)
+        return pytest_errors(409, errors, server_url, result)
     assert result is not None, "The tests take care that there is a result."
     return result
 

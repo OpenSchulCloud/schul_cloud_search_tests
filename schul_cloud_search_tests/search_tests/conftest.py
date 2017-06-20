@@ -8,6 +8,7 @@ your test is executed when the request arrives.
 """
 
 from pytest import fixture, hookimpl
+import pytest
 from schul_cloud_search_tests.search_tests import (
     get_response, add_failing_test, get_request_url
 )
@@ -39,6 +40,15 @@ def result():
     - http://docs.python-requests.org/en/master/api/#requests.Response
     """
     return get_response()
+
+
+@fixture
+def json(result):
+    """Return the result as a json object."""
+    try:
+        return result.json()
+    except:
+        pytest.skip(reason="The result is not a valid json object. {}".format(result.content))
 
 
 @fixture
