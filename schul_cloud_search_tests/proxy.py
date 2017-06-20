@@ -56,13 +56,13 @@ LISTING_TEMPLATE = SimpleTemplate(
 
 def pytest_errors(errors, server_url, answer=None):
     """Return the formatted pytest errors, jsonapi compatible."""
-    response.status = 409
+    response.status = 400
     code = "http://" + request.headers["host"] + "/code"
     result = {
       "errors":[
         {
-          "status": 409,
-          "title": "Conflict",
+          "status": 400,
+          "title": "Bad Request",
           "detail": "The request or response contained some errors.",
           "meta": {
             "url": server_url,
