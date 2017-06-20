@@ -76,7 +76,7 @@ def add_failing_test(ty, err, tb):
     _local.failing_tests.append({
           "status": 500, 
           "title": "Internal Server Error",
-          "detail": ty.__name__ + ": " + str(err.args[0]),
+          "detail": ty.__name__ + ": " + str(err),
           "meta": {
             "traceback" : tb_string,
             "documentation": (test.__doc__ if test else None),

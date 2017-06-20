@@ -11,6 +11,7 @@ Please provide
 """
 from pytest import mark
 from schul_cloud_resources_api_v1.schema import get_schemas
+from schul_cloud_resources_server_tests.tests.assertions import assertIsError
 
 
 def test_result_is_json(result):
@@ -44,9 +45,7 @@ def test_400_and_500_status_codes_have_the_jsonapi_design(error, result):
     Schema:
     - https://github.com/schul-cloud/resources-api-v1/tree/master/schemas/error
     """
-    schema = get_schemas()["error"]
-    schema.validate(error)
-    assert str(result.status_code) == error["errors"][0]["status"]
+    assertIsError(error, result.status_code)
     
 
 def test_the_content_type_is_from_the_jsonapi(result):
@@ -56,3 +55,23 @@ def test_the_content_type_is_from_the_jsonapi(result):
     - http://jsonapi.org/format/#content-negotiation-clients
     """
     assert result.headers.get("Content-Type", "") == "application/vnd.api+json", "The content type of the server reply must be application/vnd.api+json."
+
+def test_406_error_is_expected_in_case_of_invalid_accept_headers(
+        search, result, json):
+    """If the client does not acccept application/vnd.api+json, 
+    Error 406 should be returned.
+
+    See
+    - http://jsonapi.org/format/#content-negotiation-servers
+    """
+    accept = search.headers.get("Accept", None)
+    if accept is None: return
+    accepted_content_types = accept.split(",")
+    print("Accepted content types:", accepted_content_types)
+    possible_content_types = ["*/*", "application/*", "application/vnd.api+json"]
+    content_type_is_accepted = any(
+        possible_content_type in accepted_content_types
+        for possible_content_type in possible_content_types)
+    must_be_406 = not content_type_is_accepted
+    is_406 = result.status_code == 406
+    assert is_406 == must_be_406, "Error 406 is returned only if the content type is not accepable."

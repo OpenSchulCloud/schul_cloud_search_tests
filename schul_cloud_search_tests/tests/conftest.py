@@ -22,6 +22,7 @@ except ImportError:
 from schul_cloud_search_tests.proxy import get_app
 
 
+DEFAULT_PARAMETERS = {"Q":"test"}
 DEFAULT_HEADERS = {}
 DEFAULT_STATUS_CODE = 200
 
@@ -33,9 +34,9 @@ class Requester(object):
         """Create a requester."""
         self._url = url
     
-    def request(self):
+    def request(self, headers={}):
         """Request the resource."""
-        return requests.get(self._url)
+        return requests.get(self._url, headers=headers)
 
 
 def ending_with_slash(url):
@@ -130,7 +131,7 @@ class SearchEngine(object):
         
     def host(self,
              response=None,
-             params={Q:"test"},
+             params=DEFAULT_PARAMETERS,
              headers=DEFAULT_HEADERS,
              status_code=DEFAULT_STATUS_CODE):
         """Host the response given by the query.
@@ -171,9 +172,11 @@ class SearchEngine(object):
             return json.dumps(json_response)
         return json_response
 
-    def request(self, params={}):
+    def request(self,
+                params=DEFAULT_PARAMETERS,
+                headers=DEFAULT_HEADERS):
         """Request a search with parameters."""
-        return self._new_requester(params).request()
+        return self._new_requester(params).request(headers)
         
     def _new_requester(self, params):
         """Return a new Requester object from the parameters."""
