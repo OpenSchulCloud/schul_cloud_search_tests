@@ -72,14 +72,14 @@ These cases can be defined and are defined:
 
 - When the client issues a successful request and the server responds correctly,
   the request is forwarded, optionally including a note that the tests passed.
-- When the client issues a malformed request, HTTP error ``555`` is returned
+- When the client issues a malformed request, HTTP error ``400`` is returned
   including the information which tests did not pass.
-  The request is not forwarded to the server.
-  To verify this, the client request is included in the reponse.
+  The request is forwarded to the server and the response is expected to be ``400``, too.
 - When the client issues a correct request, and the server response is malformed,
-  then HTTP error ``556`` is returned including a list of error descriptions
-  of the mistakes made by the server. To verify this, also the server response
-  is included in the errors.
+  then HTTP error ``409`` is returned including a list of error descriptions
+  of the mistakes made by the server.
+
+To make the decisions transparent, the client request and the server response are included in the error reponses.
 
 Usage
 -----
