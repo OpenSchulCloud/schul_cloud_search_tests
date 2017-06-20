@@ -83,3 +83,34 @@ def test_status_code_and_error_code_must_match(search_engine, code):
     result = search_engine.host(ERROR, status_code=code).request()
     assertIsError(result, ERROR_SERVER_RESPONSE)
 
+
+@mark.skip(reason="TODO")
+@mark.parametrize("invalid_accept_header", [
+        "application/vnd.api+json; v=1",
+        "application/vnd.api+json; v=1"
+    ])
+def test_detect_invalid_accept_headers(
+        search_engine, invalid_accept_header):
+    """Test that the server responds to invalid media type queries.
+    
+    This test currently only tests that the server MUST send a 406 error
+    if the media type application/vnd.api+json is not accepted by the client.
+    Usually, an other media type is also allowed to change the result,
+    e.g. application/xml or application/json.
+    This test assumes that the server speaks only application/vnd.api+json.
+    
+    See
+    - http://jsonapi.org/format/#content-negotiation-servers
+    """
+    
+
+@mark.skip(reason="TODO")
+def test_allow_list_of_accept_headers():
+    """If a list of accept headers is passed to the server, it can accept.
+    
+    The client may pass a list of media type parameters to the server.
+    The server finds out that a valid parameter is included.
+    See
+    - http://jsonapi.org/format/#content-negotiation-servers
+    """
+

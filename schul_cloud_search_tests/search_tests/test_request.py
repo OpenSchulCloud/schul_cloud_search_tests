@@ -52,7 +52,7 @@ def test_json_api_content_type_is_accepted(search):
     
     This is because the search api is jsonapi compatible.
     - https://github.com/schul-cloud/resources-api-v1/#search-api
-    - http://jsonapi.org/format/#content-negotiation-clients
+    - http://jsonapi.org/format/#content-negotiation-servers
     
     Test for the existence of
     - application/vnd.api+json
@@ -60,6 +60,7 @@ def test_json_api_content_type_is_accepted(search):
     - */*
     without parameters.
     """
+    
 
 JSONAPI_ATTRIBUTE = re.compile("^(sort|filter\\[.+\\]|page\\[(offset|limit)\\])$")
 
