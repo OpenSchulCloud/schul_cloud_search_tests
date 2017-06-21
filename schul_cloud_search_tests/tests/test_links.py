@@ -23,11 +23,14 @@ def test_the_first_response_must_have_the_offest_0(linked_search):
     assertServerReplyIsWrong(linked_search[0].request())
 
 
-def test_the_limit_may_be_reduced_by_the_server(first_search):
+def test_the_limit_may_be_reduced_by_the_server(
+        second_search, search_engine, limit):
     """The server can reduce the limit."""
-    response = first_search.response
-    response["links"]["self"]["meta"]["limit"] -= 1
-    result = first_search.request().json()
+    response = second_search.response
+    second_search.parameters["page[limit]"] = str(limit + 1)
+    result = search_engine.host(
+         second_search.response, second_search.parameters
+         ).request().json()
     assert result == response
 
 
@@ -42,4 +45,11 @@ def test_count_does_not_match(first_search):
     first_search.response["links"]["self"]["meta"]["count"] += 1
     assertServerReplyIsWrong(first_search.request())
 
+
+def test_count_can_not_be_greater_than_the_limit(first_search):
+    """We reduce the limit so it is smaller than the count. This must be wrong."""
+    first_search.response["links"]["self"]["meta"]["limit"] = \
+        first_search.response["links"]["self"]["meta"]["count"] - 1
+    assertServerReplyIsWrong(first_search.request())
+    
 

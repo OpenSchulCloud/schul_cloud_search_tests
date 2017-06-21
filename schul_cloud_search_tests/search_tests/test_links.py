@@ -15,10 +15,10 @@ These test functions all relate to the "links" attribute of the search response.
 from pytest import mark
 
 
-@mark.skip(reason="TODO")
-def test_self_link():
-    """The self link has the same offset and may have a reduced limit.
+def test_count_is_less_or_equal_to_the_limit(self_link):
+    """The limit is the maximum number of objects returned.
     """
+    assert self_link["meta"]["count"] <= self_link["meta"]["limit"]
 
 
 def test_limit_may_be_reduced(self_link, limit):
