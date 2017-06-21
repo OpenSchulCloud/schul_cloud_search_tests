@@ -94,7 +94,6 @@ def test_no_resources_imply_no_links_to_other_searches(first_search, link_name):
 
 
 # TODO: issue: add huge offset search to tests
-@mark.current
 @mark.parametrize("link_name", ["first", "last"])
 def test_search_with_offset_too_high_can_have_links(high_offset_search, first_search, link_name):
     """If a search requests an offset too high,
@@ -106,7 +105,7 @@ def test_search_with_offset_too_high_can_have_links(high_offset_search, first_se
     response = high_offset_search.response
     assert result == response, "search results with too high offset are passed through"
 
-@mark.current
+
 @mark.parametrize("link_name", ["prev", "next"])
 def test_search_with_offset_too_high_can_not_have_links(high_offset_search, first_search, link_name):
     """If a search requests an offset too high,

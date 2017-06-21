@@ -44,6 +44,7 @@ def test_offset(self_link, offset):
     assert self_link["meta"]["offset"] == offset
 
 
+# TODO: put this into the specification to make it clear
 def test_the_end_is_reached(self_link, links):
     """If the end of the resource list is reached, count may be less than limit.
     
@@ -71,14 +72,6 @@ def test_no_resources_given(search_response, links, offset):
             assert links["first"] is None
         assert links["prev"] is None
         assert links["next"] is None
-
-
-@mark.skip(reason="TODO")
-def test_last_page_is_reached():
-    """If the last page is reached, next MUST be null.
-    
-    This is tested by requesting the next page and getting no resources back.
-    """
 
 
 @mark.skip(reason="TODO")
