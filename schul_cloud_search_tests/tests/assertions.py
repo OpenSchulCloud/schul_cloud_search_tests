@@ -12,3 +12,11 @@ Q = "Q" # The query string
 ERROR_SERVER_RESPONSE = 409 # https://httpstatuses.com/409
 
 ERROR = get_schemas()["error"].get_valid_examples()[0]
+
+
+def assertServerReplyIsWrong(response):
+    """Make sure the response is because the server responded in an
+    unspecified manner.
+    """
+    assert response.status_code == ERROR_SERVER_RESPONSE
+    assertIsError(response, ERROR_SERVER_RESPONSE)

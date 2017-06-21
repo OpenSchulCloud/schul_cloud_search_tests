@@ -35,12 +35,13 @@ def test_count():
     """
 
 
-@mark.skip(reason="TODO")
-def test_offset():
+def test_offset(search_response, offset):
     """offset is the start index in the list of objects.
     
     The offset must be the same as requested.
+    When a query is done without offset, the requested offset is zero.
     """
+    assert search_response["links"]["self"]["meta"]["offset"] == offset
 
 
 @mark.skip(reason="TODO")

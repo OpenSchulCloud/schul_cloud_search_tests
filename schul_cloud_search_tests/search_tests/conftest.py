@@ -86,6 +86,19 @@ def params(search):
     return search.query
 
 
+@fixture
+def offset(params):
+    """Return the requested offset."""
+    return int(params.get("page[offset]", "0"))
+
+
+@fixture
+def limit(params):
+    """Return the requested limit."""
+    limit = params.get("page[limit]")
+    return (None if limit is None else int(limit))
+
+
 @hookimpl(hookwrapper=True)
 def pytest_pyfunc_call(pyfuncitem):
     # From
