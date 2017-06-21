@@ -45,14 +45,6 @@ def test_offset(self_link, offset):
 
 
 @mark.skip(reason="TODO")
-def test_limit():
-    """limit is the requested number of objects.
-
-    
-    """
-
-
-@mark.skip(reason="TODO")
 def test_the_end_is_reached():
     """If the end of the resource list is reached, count may be less than limit.
     
