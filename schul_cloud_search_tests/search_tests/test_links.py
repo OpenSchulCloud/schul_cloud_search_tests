@@ -27,12 +27,12 @@ def test_limit_may_be_reduced(self_link, limit):
     assert limit is None or self_link["meta"]["limit"] <= limit
 
 
-@mark.skip(reason="TODO")
-def test_count():
+def test_count(self_link, search_response):
     """count is the actual number of objects retrieved.
     
     The count must be equal to the number of objects in the list.
     """
+    assert len(search_response["data"]) == self_link["meta"]["count"]
 
 
 def test_offset(self_link, offset):
