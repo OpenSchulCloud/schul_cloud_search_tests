@@ -44,12 +44,21 @@ def test_offset(self_link, offset):
     assert self_link["meta"]["offset"] == offset
 
 
-@mark.skip(reason="TODO")
-def test_the_end_is_reached():
+def test_the_end_is_reached(self_link, links):
     """If the end of the resource list is reached, count may be less than limit.
     
-    This implies that there is no next link and the last link is self.
+    This implies that 
+    - there is no next link and 
+    - if there are resources, the last link is self 
+    - if there are no resources in this request
+      - the last link is pointing to a lesser offset or
+      - the last link is null
     """
+    if self_link["meta"]["count"] < self_link["meta"]["limit"]:
+        assert links["next"] is None
+        assert self_link["href"] == links["last"]
+    elif self_link["href"] == links["last"]:
+        assert links["next"] is None
 
 
 @mark.skip(reason="TODO")

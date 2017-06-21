@@ -6,6 +6,7 @@ import copy
 from schul_cloud_search_tests.tests.assertions import (
     assertServerReplyIsWrong)
 from pprint import pprint
+import pytest
 
 
 def test_correct_self_link_is_passed_through(linked_search):
@@ -52,4 +53,31 @@ def test_count_can_not_be_greater_than_the_limit(first_search):
         first_search.response["links"]["self"]["meta"]["count"] - 1
     assertServerReplyIsWrong(first_search.request())
     
+
+def test_count_must_equal_limit_for_links_in_between(first_search, last_search):
+    """If a search is not the last, the count must be equal to the limit.
+    
+    Test that
+    - last last link is self
+    """
+    if first_search == last_search:
+        pytest.skip("I need a request that is not the last.")
+    response = first_search.response
+    response["data"].pop()
+    links = response["links"]
+    meta = links["self"]["meta"]
+    meta["count"] -= 1
+    links["next"] = None
+    assert links["self"]["href"] != links["last"], "precondition for the test"
+    assertServerReplyIsWrong(first_search.request())
+
+
+@mark.current
+def test_next_link_of_last_request_must_be_null(last_search):
+    """If the next link is set in the last request, it is an error."""
+    last_search.response["links"]["next"] = \
+        last_search.response["links"]["self"]["href"]
+    print('last_search.response["links"]:', last_search.response["links"])
+    assertServerReplyIsWrong(last_search.request())
+
 
