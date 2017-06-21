@@ -17,7 +17,7 @@ from pytest import mark
 
 @mark.skip(reason="TODO")
 def test_self_link():
-    """The self link is has the same offset and may have a reduced limit.
+    """The self link has the same offset and may have a reduced limit.
     """
 
 

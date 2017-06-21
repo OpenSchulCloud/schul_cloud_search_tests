@@ -8,9 +8,11 @@ import sys
 import os
 import requests
 from urllib.parse import urlencode
-import copy
+from copy import deepcopy
 from schul_cloud_search_tests.tests.assertions import Q
 import json
+from schul_cloud_resources_api_v1.schema import get_schemas
+from collections import namedtuple
 
 
 HERE = os.path.dirname(__file__)
@@ -25,6 +27,14 @@ from schul_cloud_search_tests.proxy import get_app
 DEFAULT_PARAMETERS = {"Q":"test"}
 DEFAULT_HEADERS = {}
 DEFAULT_STATUS_CODE = 200
+JSONAPI = {
+    "version": "1.0",
+    "meta" : {
+      "name": "Example Server",
+      "source": "https://github.com/schul-cloud/resources-api-v1",
+      "description": "This is a test server for the search API."
+    }
+}
 
 
 class Requester(object):
@@ -48,9 +58,13 @@ def ending_with_slash(url):
 
 def params_to_key(params):
     """Return a tuple key for the parameters."""
+    for key, value in params.items():
+        assert isinstance(key, str)
+        assert isinstance(value, str)
     key = list(params.items())
     key.sort()
     return tuple(key)
+
 
 class SearchEngine(object):
     """The search engine adapter.
@@ -61,14 +75,7 @@ class SearchEngine(object):
     """
     
     _default_response = {
-      "jsonapi": {
-        "version": "1.0",
-        "meta" : {
-          "name": "Example Server",
-          "source": "https://github.com/schul-cloud/resources-api-v1",
-          "description": "This is just an eampel server for the search API."
-        }
-      },
+      "jsonapi": JSONAPI,
       "links": {
         "self": {
           "href": None,
@@ -142,6 +149,7 @@ class SearchEngine(object):
         if response is None:
             response = self.get_default_response(params)
         key = params_to_key(params)
+        print("host:", key, file=sys.stderr)
         assert key not in self._queries
         self._queries[key] = (response, headers, status_code)
         return self._new_requester(params)
@@ -156,12 +164,14 @@ class SearchEngine(object):
         """Serve a request to the search engine bottle server."""
         default = object()
         key = params_to_key(request.query)
+        print("request:", key, file=sys.stderr)
         self._last_request_headers = dict(request.headers)
         result = self._queries.get(key, default)
         if result is default:
             json_response = self.get_default_response(request.query_string)
             headers = DEFAULT_HEADERS
             status_code = DEFAULT_STATUS_CODE
+            print("Return default result.", file=sys.stderr)
         else:
             json_response, headers, status_code = result
         self._last_response = json_response
@@ -192,7 +202,7 @@ class SearchEngine(object):
         """
         if not isinstance(query, str):
             query = urlencode(query)
-        result = copy.deepcopy(self._default_response)
+        result = deepcopy(self._default_response)
         url = self.search_engine_url + "?" + query
         result["links"]["self"]["href"] = url
         return result
@@ -235,3 +245,105 @@ def search_engine(search_engine_session):
 def code_url(search_engine):
     """Return the url of the code enpoint."""
     return search_engine.proxy_url + "code"
+
+
+VALID_RESOURCE = get_schemas()["resource"].get_valid_examples()[0]
+@fixture
+def valid_resource():
+    """Return a valid resource."""
+    return {"type": "resource", "attributes": deepcopy(VALID_RESOURCE), "id": "1"}
+
+
+@fixture(params=[7, 11, 20])
+def limit(request):
+    """Return the limit of one search request."""
+    return request.param
+
+
+@fixture(params=[0, 8, 100])
+def link_resources(request, valid_resource, limit):
+    """Return a list of resources wich are returned by a search."""
+    result = [[]]
+    count = 0
+    count_in_last_request = 0
+    while count < request.param:
+        if count_in_last_request >= limit:
+            result.append([])
+            count_in_last_request = 0
+        result[-1].append(valid_resource)
+        count += 1
+        count_in_last_request += 1
+    return result
+
+
+@fixture
+def link_parameters(link_resources, limit):
+    """Return the parameters used to search."""
+    result = [{Q:"tralala"}]
+    count = len(link_resources[0])
+    for res in link_resources[1:]:
+        result.append({Q:"tralala", "page[limit]":str(limit), "page[offset]":str(count)})
+        count += len(res)
+    return result
+
+
+@fixture
+def link_urls(search_engine, link_parameters):
+    """Return a list of links for the paramaters"""
+    return [search_engine.search_engine_url + "?" + urlencode(params)
+            for params in link_parameters]
+
+
+@fixture
+def link_responses(link_urls, link_parameters, link_resources, limit):
+    """Return a response with filled links.
+    
+    The response is not hosted by the search engine.
+    """
+    result = []
+    for url, parameters, resources, next_url, previous_url in zip(
+            link_urls, link_parameters, link_resources,
+            link_urls[1:] + [None], [None] + link_urls[:-1]):
+        response = {
+          "jsonapi": JSONAPI,
+          "links": {
+            "self": {
+              "href": url,
+              "meta": {
+                "count": len(resources),
+                "offset": 0,
+                "limit": limit,
+              }
+            },
+            "first": link_urls[0],
+            "last": link_urls[-1],
+            "prev": previous_url,
+            "next": next_url,
+          },
+          "data": resources,
+        }
+        result.append(response)
+    return result
+
+LinkedRequest = namedtuple("LinkedRequest", [
+    "resources", "parameters", "url", "response", "request"])
+
+@fixture
+def link_request(search_engine, link_parameters, link_responses):
+    """Return a list of requesters for the responses."""
+    return [search_engine.host(response, parameters).request
+            for response, parameters in zip(link_responses, link_parameters)]
+
+
+@fixture
+def linked_search(link_responses, link_urls, link_parameters, link_resources, 
+          link_request):
+    """Return a list of linked resource requests.
+    
+    Each element has the following attributes:
+    - response
+    - url
+    - paramaters
+    - resources
+    """
+    return list(map(lambda t: LinkedRequest(*t), zip(link_resources, link_parameters, link_urls, link_responses, link_request)))
