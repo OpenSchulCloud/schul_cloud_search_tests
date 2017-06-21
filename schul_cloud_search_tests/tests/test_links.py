@@ -36,3 +36,10 @@ def test_the_limit_can_not_be_increased_by_the_server(second_search):
     second_search.response["links"]["self"]["meta"]["limit"] += 1
     assertServerReplyIsWrong(second_search.request())
     
+
+def test_count_does_not_match(first_search):
+    """count must be equal t the number of objects."""
+    first_search.response["links"]["self"]["meta"]["count"] += 1
+    assertServerReplyIsWrong(first_search.request())
+
+

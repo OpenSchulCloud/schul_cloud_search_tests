@@ -364,4 +364,3 @@ def second_search(linked_search):
     if len(linked_search) < 2:
         pytest.skip("Not enough searches with a limit.")
     return linked_search[1]
-
