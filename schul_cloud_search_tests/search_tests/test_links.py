@@ -21,10 +21,10 @@ def test_self_link():
     """
 
 
-@mark.skip(reason="TODO")
-def test_limit_may_be_reduced():
+def test_limit_may_be_reduced(self_link, limit):
     """If the limit is higher than the maximum limit the server has internally, the server sets the limit to the maximum available limit.
     """
+    assert limit is None or self_link["meta"]["limit"] <= limit
 
 
 @mark.skip(reason="TODO")
@@ -35,13 +35,13 @@ def test_count():
     """
 
 
-def test_offset(search_response, offset):
+def test_offset(self_link, offset):
     """offset is the start index in the list of objects.
     
     The offset must be the same as requested.
     When a query is done without offset, the requested offset is zero.
     """
-    assert search_response["links"]["self"]["meta"]["offset"] == offset
+    assert self_link["meta"]["offset"] == offset
 
 
 @mark.skip(reason="TODO")

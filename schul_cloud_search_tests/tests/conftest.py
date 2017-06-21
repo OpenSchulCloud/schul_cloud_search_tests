@@ -13,6 +13,7 @@ from schul_cloud_search_tests.tests.assertions import Q
 import json
 from schul_cloud_resources_api_v1.schema import get_schemas
 from collections import namedtuple
+import pytest
 
 
 HERE = os.path.dirname(__file__)
@@ -254,7 +255,7 @@ def valid_resource():
     return {"type": "resource", "attributes": deepcopy(VALID_RESOURCE), "id": "1"}
 
 
-@fixture(params=[7, 11, 20])
+@fixture(params=[11, 20])
 def limit(request):
     """Return the limit of one search request."""
     return request.param
@@ -301,6 +302,7 @@ def link_responses(link_urls, link_parameters, link_resources, limit):
     The response is not hosted by the search engine.
     """
     result = []
+    offset = 0
     for url, parameters, resources, next_url, previous_url in zip(
             link_urls, link_parameters, link_resources,
             link_urls[1:] + [None], [None] + link_urls[:-1]):
@@ -311,7 +313,7 @@ def link_responses(link_urls, link_parameters, link_resources, limit):
               "href": url,
               "meta": {
                 "count": len(resources),
-                "offset": 0,
+                "offset": offset,
                 "limit": limit,
               }
             },
@@ -323,6 +325,7 @@ def link_responses(link_urls, link_parameters, link_resources, limit):
           "data": resources,
         }
         result.append(response)
+        offset += len(resources)
     return result
 
 LinkedRequest = namedtuple("LinkedRequest", [
@@ -347,3 +350,18 @@ def linked_search(link_responses, link_urls, link_parameters, link_resources,
     - resources
     """
     return list(map(lambda t: LinkedRequest(*t), zip(link_resources, link_parameters, link_urls, link_responses, link_request)))
+
+
+@fixture
+def first_search(linked_search):
+    """The first of the linked searches."""
+    return linked_search[0]
+
+
+@fixture
+def second_search(linked_search):
+    """The second of the linked searches."""
+    if len(linked_search) < 2:
+        pytest.skip("Not enough searches with a limit.")
+    return linked_search[1]
+

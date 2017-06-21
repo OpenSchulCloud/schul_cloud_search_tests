@@ -99,6 +99,18 @@ def limit(params):
     return (None if limit is None else int(limit))
 
 
+@fixture
+def links(search_response):
+    """Return the links of the search response."""
+    return search_response["links"]
+
+
+@fixture
+def self_link(links):
+    """Return the self link."""
+    return links["self"]
+
+
 @hookimpl(hookwrapper=True)
 def pytest_pyfunc_call(pyfuncitem):
     # From

@@ -15,9 +15,24 @@ def test_correct_self_link_is_passed_through(linked_search):
         response = search.response
         assert result == response
 
-@mark.current
+
 def test_the_first_response_must_have_the_offest_0(linked_search):
     """The first request is done without specifying an offset.
     The offset 0 is implied."""
     linked_search[0].response["links"]["self"]["meta"]["offset"] = 1
     assertServerReplyIsWrong(linked_search[0].request())
+
+
+def test_the_limit_may_be_reduced_by_the_server(first_search):
+    """The server can reduce the limit."""
+    response = first_search.response
+    response["links"]["self"]["meta"]["limit"] -= 1
+    result = first_search.request().json()
+    assert result == response
+
+
+def test_the_limit_can_not_be_increased_by_the_server(second_search):
+    """The server may not increase the limit."""
+    second_search.response["links"]["self"]["meta"]["limit"] += 1
+    assertServerReplyIsWrong(second_search.request())
+    
