@@ -14,6 +14,8 @@ def test_correct_self_link_is_passed_through(linked_search):
     for search in linked_search:
         result = search.request().json()
         response = search.response
+        print("result:  ", result)
+        print("response:", response)
         assert result == response
 
 
@@ -72,7 +74,6 @@ def test_count_must_equal_limit_for_links_in_between(first_search, last_search):
     assertServerReplyIsWrong(first_search.request())
 
 
-@mark.current
 def test_next_link_of_last_request_must_be_null(last_search):
     """If the next link is set in the last request, it is an error."""
     last_search.response["links"]["next"] = \
@@ -81,3 +82,36 @@ def test_next_link_of_last_request_must_be_null(last_search):
     assertServerReplyIsWrong(last_search.request())
 
 
+# TODO: issue: request something with no resources
+@mark.parametrize("link_name", ["first", "last", "prev", "next"])
+def test_no_resources_imply_no_links_to_other_searches(first_search, link_name):
+    if len(first_search.resources) != 0:
+        pytest.skip("Need something with no resources")
+    first_search.response["links"][link_name] = \
+        first_search.response["links"]["self"]["href"]
+    print(first_search.response)
+    assertServerReplyIsWrong(first_search.request())
+
+
+# TODO: issue: add huge offset search to tests
+@mark.current
+@mark.parametrize("link_name", ["first", "last"])
+def test_search_with_offset_too_high_can_have_links(high_offset_search, first_search, link_name):
+    """If a search requests an offset too high,
+    the first and the last link may be set.
+    """
+    high_offset_search.response["links"][link_name] = \
+        first_search.response["links"]["self"]["href"]
+    result = high_offset_search.request().json()
+    response = high_offset_search.response
+    assert result == response, "search results with too high offset are passed through"
+
+@mark.current
+@mark.parametrize("link_name", ["prev", "next"])
+def test_search_with_offset_too_high_can_not_have_links(high_offset_search, first_search, link_name):
+    """If a search requests an offset too high,
+    the prev and the next link can not be set.
+    """
+    high_offset_search.response["links"][link_name] = \
+        first_search.response["links"]["self"]["href"]
+    assertServerReplyIsWrong(high_offset_search.request())

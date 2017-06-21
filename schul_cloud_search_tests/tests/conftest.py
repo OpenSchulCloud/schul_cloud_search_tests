@@ -317,8 +317,8 @@ def link_responses(link_urls, link_parameters, link_resources, limit):
                 "limit": limit,
               }
             },
-            "first": link_urls[0],
-            "last": link_urls[-1],
+            "first": (link_urls[0] if resources else None),
+            "last": (link_urls[-1] if resources else None),
             "prev": previous_url,
             "next": next_url,
           },
@@ -370,4 +370,18 @@ def second_search(linked_search):
 def last_search(linked_search):
     """The last of the linked searches."""
     return linked_search[-1]
+
+
+@fixture
+def high_offset_search(last_search, first_search):
+    """Return a search with an offset which is too high."""
+    if last_search == first_search:
+        pytest.skip("need mutiple searches")
+    last_search.response["data"] = []
+    last_search.response["links"]["self"]["meta"]["count"] = 0
+    last_search.response["links"]["next"] = None
+    last_search.response["links"]["prev"] = None
+    last_search.response["links"]["last"] = None
+    last_search.response["links"]["first"] = None
+    return last_search
 

@@ -54,17 +54,23 @@ def test_the_end_is_reached(self_link, links):
       - the last link is pointing to a lesser offset or
       - the last link is null
     """
-    if self_link["meta"]["count"] < self_link["meta"]["limit"]:
+    if self_link["meta"]["count"] and \
+            self_link["meta"]["count"] < self_link["meta"]["limit"]:
         assert links["next"] is None
         assert self_link["href"] == links["last"]
     elif self_link["href"] == links["last"]:
         assert links["next"] is None
 
 
-@mark.skip(reason="TODO")
-def test_no_resources_given():
+def test_no_resources_given(search_response, links, offset):
     """If there are no resources, first, last, prev and next MUST be null.
     """
+    if len(search_response["data"]) == 0:
+        if offset == 0:
+            assert links["last"] is None
+            assert links["first"] is None
+        assert links["prev"] is None
+        assert links["next"] is None
 
 
 @mark.skip(reason="TODO")
