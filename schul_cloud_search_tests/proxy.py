@@ -5,7 +5,10 @@ import sys
 import os
 import shutil
 import requests
-from json import JSONDecodeError
+try:
+    from json import JSONDecodeError
+except ImportError:
+    JSONDecodeError = ValueError
 from schul_cloud_resources_server_tests.tests.fixtures import StoppableWSGIRefServerAdapter
 if "" in sys.path:
     sys.path.append(".")
