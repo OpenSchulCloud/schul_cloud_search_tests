@@ -56,22 +56,20 @@ def test_count_can_not_be_greater_than_the_limit(first_search):
     assertServerReplyIsWrong(first_search.request())
     
 
-def test_count_must_equal_limit_for_links_in_between(first_search, last_search):
+def test_count_must_equal_limit_for_links_in_between(not_last_search):
     """If a search is not the last, the count must be equal to the limit.
     
     Test that
     - last last link is self
     """
-    if first_search == last_search:
-        pytest.skip("I need a request that is not the last.")
-    response = first_search.response
+    response = not_last_search.response
     response["data"].pop()
     links = response["links"]
     meta = links["self"]["meta"]
     meta["count"] -= 1
     links["next"] = None
     assert links["self"]["href"] != links["last"], "precondition for the test"
-    assertServerReplyIsWrong(first_search.request())
+    assertServerReplyIsWrong(not_last_search.request())
 
 
 def test_next_link_of_last_request_must_be_null(last_search):
@@ -114,3 +112,23 @@ def test_search_with_offset_too_high_can_not_have_links(high_offset_search, firs
     high_offset_search.response["links"][link_name] = \
         first_search.response["links"]["self"]["href"]
     assertServerReplyIsWrong(high_offset_search.request())
+
+
+def test_last_link_implies_next_link_for_all_but_last_request(
+        not_last_search):
+    """A last link is given: we test that the next link must exist."""
+    assert not_last_search.response["links"]["last"], "precondition for the test"
+    not_last_search.response["links"]["next"] = None
+    assertServerReplyIsWrong(not_last_search.request())
+
+
+@mark.current
+def test_first_implies_prev_link_for_all_but_first_request(second_search):
+    """If the first link is given, also a prev link must be given.
+    
+    This is only valid, if we did not request an offset which is out of range.
+    """
+    assert second_search.response["links"]["first"], "precondition for the test"
+    second_search.response["links"]["prev"] = None
+    assertServerReplyIsWrong(second_search.request())
+    

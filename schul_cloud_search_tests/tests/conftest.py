@@ -385,3 +385,12 @@ def high_offset_search(last_search, first_search):
     last_search.response["links"]["first"] = None
     return last_search
 
+
+@fixture
+def not_last_search(first_search, last_search):
+    """Return a search which is definitely not the last search."""
+    if first_search == last_search:
+        pytest.skip("I need a request that is not the last.")
+    return first_search
+
+

@@ -13,6 +13,7 @@ These test functions all relate to the "links" attribute of the search response.
 
 """
 from pytest import mark
+from urllib.parse import parse_qs, urlparse
 
 
 def test_count_is_less_or_equal_to_the_limit(self_link):
@@ -74,16 +75,31 @@ def test_no_resources_given(search_response, links, offset):
         assert links["next"] is None
 
 
-@mark.skip(reason="TODO")
-def test_last_implies_next():
-    """If last is given, next must be given.
+def get_offset(link):
+    """Return the offset from a link."""
+    query = parse_qs(urlparse(link).query)
+    return int(query.get("page[offset]", [0])[0])
+
+
+def test_last_implies_next(links, offset):
+    """If links["last"] is given, links["next"] must be given.
+
+    This only works if this is not the last request, becuase
+    the last request has no next request.
     """
+    if links["last"] and get_offset(links["last"]) > offset:
+        print("last offset:", get_offset(links["last"]))
+        assert links["next"] is not None, "The next link must be given if self is before the last link."
 
 
-@mark.skip(reason="TODO")
-def test_first_implies_prev():
+def test_first_implies_prev(links, offset):
     """If first is given, prev must be given.
+    
+    This is only valid, if we did not request an offset which is out of range.
     """
+    if links["first"] and links["last"] \
+            and get_offset(links["last"]) > offset > 0:
+        assert links["prev"] is not None, "The prev link must be given if there is a first link and the request is not out of range."
 
 
 @mark.skip(reason="TODO")
