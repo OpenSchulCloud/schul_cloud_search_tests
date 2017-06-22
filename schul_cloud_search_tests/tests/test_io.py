@@ -9,7 +9,9 @@ import copy
 @mark.parametrize("response", get_schemas()["search-response"].get_valid_examples())
 def test_valid_query_is_returned(search_engine, response):
     """Valid results are passed through the search engine"""
-    result = search_engine.host(response).request()
+    offset = response["links"]["self"]["meta"]["offset"]
+    query = {Q:"test2", "page[offset]":str(offset)}
+    result = search_engine.host(response, query).request()
     data = result.json()
     pprint(data)
     assert data == response

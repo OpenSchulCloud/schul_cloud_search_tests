@@ -72,7 +72,7 @@ def test_q_is_a_required_query(search_engine):
 def test_all_parameter_names_are_jsonapi_compatible(
         search_engine, parameter, parameter_is_correct):
     """make sure the valid and invalid parameters are fed back."""
-    response = search_engine.request({parameter:"4", Q:"test"})
+    response = search_engine.request({parameter:"0", Q:"test"})
     json = response.json()
     pprint(json)
     if parameter_is_correct:
