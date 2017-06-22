@@ -111,6 +111,11 @@ def self_link(links):
     return links["self"]
 
 
+@fixture
+def data(search_response):
+    """Return the data field of the search response."""
+    return search_response["data"]
+
 @hookimpl(hookwrapper=True)
 def pytest_pyfunc_call(pyfuncitem):
     # From

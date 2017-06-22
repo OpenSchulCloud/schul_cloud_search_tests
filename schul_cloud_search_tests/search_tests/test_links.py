@@ -44,12 +44,12 @@ def test_limit_may_be_reduced(self_link, limit):
     assert limit is None or self_link["meta"]["limit"] <= limit
 
 
-def test_count(self_link, search_response):
+def test_count(self_link, search_response, data):
     """count is the actual number of objects retrieved.
     
     The count must be equal to the number of objects in the list.
     """
-    assert len(search_response["data"]) == self_link["meta"]["count"]
+    assert len(data) == self_link["meta"]["count"]
 
 
 def test_offset(self_link, offset):
@@ -156,7 +156,11 @@ def test_links_are_absolute(link_name, links):
         assert link_scheme in ["http", "https"], "there must be a scheme like http:// in the url for {}, not {} in ".format(link_name, repr(link_scheme))
 
 
-@mark.skip(reason="TODO")
-def test_request_too_far():
+def test_request_too_far(links, offset, self_link, data):
     """Requesting beyond the last link yields no objects.
+    
+    A request beyond the last possible request yields no objects.
     """
+    limit = self_link["meta"]["limit"]
+    if links["last"] and get_offset(links["last"]) + limit <= offset:
+        assert len(data) == 0, "No data should be given but {} objects were found.".format(len(data))

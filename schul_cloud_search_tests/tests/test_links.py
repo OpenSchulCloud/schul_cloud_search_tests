@@ -159,7 +159,6 @@ def test_href_object_links_are_ok_for_the_search(linked_search):
         assert result == response
 
 
-@mark.current
 @mark.parametrize("link_name", ["self", "prev", "first", "last", "next"])
 def test_relative_links_are_not_allowed(second_search, third_search, link_name):
     """Test that the links must start with http or https."""
@@ -174,4 +173,16 @@ def test_relative_links_are_not_allowed(second_search, third_search, link_name):
         new_link = existing_link['href'][len(START):]
         existing_link['href'] = new_link
     assertServerReplyIsWrong(second_search.request())
+
+
+@mark.current
+def test_requests_beyond_the_last_must_not_have_objects(
+        first_search, second_search):
+    """A request beyond the last link, there shall be no objects to return.
     
+    Make the second search look like the last.
+    """
+    second_search.response["links"]["next"] = None
+    second_search.response["links"]["prev"] = None
+    second_search.response["links"]["last"] = first_search.response["links"]["first"]
+    assertServerReplyIsWrong(second_search.request())
