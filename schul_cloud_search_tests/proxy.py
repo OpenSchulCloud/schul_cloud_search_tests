@@ -92,17 +92,17 @@ def check_response(target_url):
     """Test the request and the response to the search engine."""
     print("query string:", request.query_string)
     server_url = target_url + "?" + request.query_string
-    errors = run_request_tests(server_url)
-    if errors:
-        return pytest_errors(400, errors, server_url)
+    client_errors = run_request_tests(server_url)
+    return_error = (400 if client_errors else 409)
     answer = requests.get(server_url, headers=request.headers)
-    errors = run_response_tests(server_url, answer)
+    server_errors = run_response_tests(server_url, answer)
     try:
         result = answer.json()
     except (JSONDecodeError):
         result = None
-    if errors:
-        return pytest_errors(409, errors, server_url, result)
+    if client_errors and answer.status_code != 400 or server_errors:
+        errors = client_errors + server_errors
+        return pytest_errors(return_error, errors, server_url, result)
     assert result is not None, "The tests take care that there is a result."
     response.status = answer.status_code
     return result

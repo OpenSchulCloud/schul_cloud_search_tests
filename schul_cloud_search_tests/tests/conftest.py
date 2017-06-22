@@ -9,7 +9,8 @@ import os
 import requests
 from urllib.parse import urlencode
 from copy import deepcopy
-from schul_cloud_search_tests.tests.assertions import Q
+from schul_cloud_search_tests.tests.assertions import (
+    Q, assertClientRequestIsInvalid, get_error, ERROR_CLIENT_REQUEST)
 import json
 from schul_cloud_resources_api_v1.schema import get_schemas
 from collections import namedtuple
@@ -402,3 +403,30 @@ def not_last_search(first_search, last_search):
     return first_search
 
 
+@fixture(params=[
+        get_error(ERROR_CLIENT_REQUEST),
+        None
+    ])
+def response400(request):
+    """Return the response which yeilds a 400 by the proxy."""
+    return request.param
+
+@fixture
+def assertIs400(response400):
+    """Return an assertion function which tests that the result is correct."""
+    if response400 is None:
+        return assertClientRequestIsInvalid
+    else:
+        def test_error_passes_through(response):
+            """Make sure the error passes through."""
+            response = response.json()
+            print("response:", response)
+            print("response400:", response400)
+            assert response == response400
+        return test_error_passes_through
+
+
+@fixture
+def request400(search_engine, response400):
+    """Return a function that requests parameters."""
+    return lambda params: search_engine.host(response=response400, params=params, status_code=(200 if response400 is None else 400)).request()

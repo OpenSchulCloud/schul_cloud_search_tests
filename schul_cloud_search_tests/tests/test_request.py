@@ -1,13 +1,13 @@
 from schul_cloud_resources_api_v1.schema import get_schemas
-from pytest import mark
+from pytest import mark, fixture
 from schul_cloud_search_tests.tests.assertions import (
-    assertIsError, ERROR_CLIENT_REQUEST, Q)
+    assertClientRequestIsInvalid, Q)
 from pprint import pprint
 
 
 @mark.parametrize("param", ["page[offset]", "page[limit]"])
 @mark.parametrize("value", ["", "asd", "-1"])
-def test_parameter_must_be_positive_integer(search_engine, param, value):
+def test_parameter_must_be_positive_integer(request400, assertIs400, param, value):
     """
     According to
     - https://github.com/schul-cloud/resources-api-v1#search-api
@@ -18,9 +18,8 @@ def test_parameter_must_be_positive_integer(search_engine, param, value):
     - https://github.com/schul-cloud/schul_cloud_search_tests#specification
     the return code must be ERROR_CLIENT_REQUEST.
     """
-    result = search_engine.request(params={param:value, Q:"test"})
-    assert result.status_code == ERROR_CLIENT_REQUEST
-    assertIsError(result.json(), ERROR_CLIENT_REQUEST)
+    result = request400({param:value, Q:"test"})
+    assertIs400(result)
     
     
 def test_q_is_a_required_query(search_engine):
@@ -29,9 +28,8 @@ def test_q_is_a_required_query(search_engine):
     q is required
     """
     result = search_engine.request(params={})
-    assert result.status_code == ERROR_CLIENT_REQUEST
     data = result.json()
-    assertIsError(data, ERROR_CLIENT_REQUEST)
+    assertClientRequestIsInvalid(result)
     errors = [error for error in data["errors"]
              if error["meta"].get("test_function") == "test_request_has_query"]
     assert errors, "There should be such an error function"
@@ -78,5 +76,5 @@ def test_all_parameter_names_are_jsonapi_compatible(
     if parameter_is_correct:
         assert json == search_engine.last_response
     else:
-        assertIsError(json, ERROR_CLIENT_REQUEST)
+        assertClientRequestIsInvalid(response)
 
