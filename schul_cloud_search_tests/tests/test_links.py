@@ -144,7 +144,6 @@ def test_prev_link_does_not_skip_objects(second_search, third_search):
     assertServerReplyIsWrong(third_search.request())
 
 
-@mark.current
 def test_href_object_links_are_ok_for_the_search(linked_search):
     """If the links are given, the search must be ok with the href."""
     for search in linked_search:
@@ -158,8 +157,21 @@ def test_href_object_links_are_ok_for_the_search(linked_search):
         print("result:  ", result)
         print("response:", response)
         assert result == response
+
+
+@mark.current
+@mark.parametrize("link_name", ["self", "prev", "first", "last", "next"])
+def test_relative_links_are_not_allowed(second_search, third_search, link_name):
+    """Test that the links must start with http or https."""
+    existing_link = second_search.response["links"][link_name]
+    START = "http://"
+    if isinstance(existing_link, str):
+        assert existing_link.startswith(START)
+        new_link = existing_link[len(START):]
+        second_search.response["links"][link_name] = new_link
+    if isinstance(existing_link, dict):
+        assert existing_link['href'].startswith(START)
+        new_link = existing_link['href'][len(START):]
+        existing_link['href'] = new_link
+    assertServerReplyIsWrong(second_search.request())
     
-
-
-
-

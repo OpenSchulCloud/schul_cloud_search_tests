@@ -145,12 +145,16 @@ def test_retrieve_object_with_self_link():
     """
 
 
-@mark.skip(reason="TODO")
-def test_links_are_absolute():
+@mark.parametrize("link_name", ["prev", "next", "last", "first", "self"])
+def test_links_are_absolute(link_name, links):
     """All links are absolute links using the host header field.
     """
-#    for link_name in ["prev", "next", "last", "first"]:
-#        assert 
+    href = get_href(links[link_name])
+    if href is not None:
+        link_scheme = urlparse(href).scheme
+        print("link_scheme:", repr(link_scheme), href)
+        assert link_scheme in ["http", "https"], "there must be a scheme like http:// in the url for {}, not {} in ".format(link_name, repr(link_scheme))
+
 
 @mark.skip(reason="TODO")
 def test_request_too_far():
