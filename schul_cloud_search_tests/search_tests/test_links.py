@@ -16,6 +16,22 @@ from pytest import mark
 from urllib.parse import parse_qs, urlparse
 
 
+def get_offset(link):
+    """Return the offset from a link."""
+    query = parse_qs(urlparse(get_href(link)).query)
+    return int(query.get("page[offset]", [0])[0])
+
+
+def get_href(link):
+    """Return the href of the link."""
+    if link is None:
+        return None
+    if isinstance(link, dict):
+        return link.get("href")
+    assert isinstance(link, str), "a link must be either a string or an object."
+    return link
+
+
 def test_count_is_less_or_equal_to_the_limit(self_link):
     """The limit is the maximum number of objects returned.
     """
@@ -59,8 +75,8 @@ def test_the_end_is_reached(self_link, links):
     if self_link["meta"]["count"] and \
             self_link["meta"]["count"] < self_link["meta"]["limit"]:
         assert links["next"] is None
-        assert self_link["href"] == links["last"]
-    elif self_link["href"] == links["last"]:
+        assert self_link["href"] == get_href(links["last"])
+    elif self_link["href"] == get_href(links["last"]):
         assert links["next"] is None
 
 
@@ -73,12 +89,6 @@ def test_no_resources_given(search_response, links, offset):
             assert links["first"] is None
         assert links["prev"] is None
         assert links["next"] is None
-
-
-def get_offset(link):
-    """Return the offset from a link."""
-    query = parse_qs(urlparse(link).query)
-    return int(query.get("page[offset]", [0])[0])
 
 
 def test_last_implies_next(links, offset):
@@ -119,7 +129,7 @@ def test_prev_does_not_skip_objects(links, self_link):
     
     This can only be inferred by the limit and offset.
     """
-    if links["next"]:
+    if links["prev"]:
         prev_offset = get_offset(links["prev"])
         self_offset = self_link["meta"]["offset"]
         limit = self_link["meta"]["limit"]
@@ -139,7 +149,8 @@ def test_retrieve_object_with_self_link():
 def test_links_are_absolute():
     """All links are absolute links using the host header field.
     """
-
+#    for link_name in ["prev", "next", "last", "first"]:
+#        assert 
 
 @mark.skip(reason="TODO")
 def test_request_too_far():

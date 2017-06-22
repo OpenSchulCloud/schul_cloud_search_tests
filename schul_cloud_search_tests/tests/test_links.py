@@ -137,14 +137,28 @@ def test_next_link_does_not_skip_objects(first_search, second_search):
     first_search.response["links"]["next"] = second_search.response["links"]["next"]
     assertServerReplyIsWrong(first_search.request())
 
-@mark.current
+
 def test_prev_link_does_not_skip_objects(second_search, third_search):
     """The prev link must precede directly."""
     third_search.response["links"]["prev"] = second_search.response["links"]["prev"]
     assertServerReplyIsWrong(third_search.request())
 
 
-
+@mark.current
+def test_href_object_links_are_ok_for_the_search(linked_search):
+    """If the links are given, the search must be ok with the href."""
+    for search in linked_search:
+        response = search.response
+        for link_name in ["next", "prev", "first", "last"]:
+            if response["links"][link_name]:
+                response["links"][link_name] = {
+                    "href":response["links"][link_name],
+                    "meta": {}}
+        result = search.request().json()
+        print("result:  ", result)
+        print("response:", response)
+        assert result == response
+    
 
 
 
