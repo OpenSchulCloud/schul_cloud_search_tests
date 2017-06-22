@@ -127,6 +127,7 @@ def get_code(path=None, ending=None):
         return LISTING_TEMPLATE.render(here=HERE, APPLICATION=APPLICATION)
     return static_file(path, root=HERE)
 
+
 def get_app(endpoint="/", target_url="http://localhost:8080"):
     """Return a bottle app that tests the request and the response."""
     app = Bottle()
@@ -149,7 +150,7 @@ def main(host="0.0.0.0", port=8081, endpoint="/", target_url="http://localhost:8
     run(app, host=host, port=port)
 
 
-__all__ = ["main", "app"]
+__all__ = ["main", "run", "get_app"]
 
 if __name__ == "__main__":
     main()

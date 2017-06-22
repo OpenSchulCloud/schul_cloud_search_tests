@@ -411,6 +411,7 @@ def response400(request):
     """Return the response which yeilds a 400 by the proxy."""
     return request.param
 
+
 @fixture
 def assertIs400(response400):
     """Return an assertion function which tests that the result is correct."""
