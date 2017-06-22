@@ -102,12 +102,29 @@ def test_first_implies_prev(links, offset):
         assert links["prev"] is not None, "The prev link must be given if there is a first link and the request is not out of range."
 
 
-@mark.skip(reason="TODO")
-def test_do_not_skip_objects():
-    """The prev and next links MUST not skip objects.
+def test_next_does_not_skip_objects(links, self_link):
+    """The next link MUST not skip objects.
     
     This can only be inferred by the limit and offset.
     """
+    if links["next"]:
+        next_offset = get_offset(links["next"])
+        self_offset = self_link["meta"]["offset"]
+        limit = self_link["meta"]["limit"]
+        assert next_offset == self_offset + limit, "The offset of the next link must be increased by the limit."
+        
+
+def test_prev_does_not_skip_objects(links, self_link):
+    """The prev link MUST not skip objects.
+    
+    This can only be inferred by the limit and offset.
+    """
+    if links["next"]:
+        prev_offset = get_offset(links["prev"])
+        self_offset = self_link["meta"]["offset"]
+        limit = self_link["meta"]["limit"]
+        assert prev_offset == self_offset - limit, "The offset of the prev link must be decreased by the limit."
+            
 
 
 @mark.skip(reason="TODO")

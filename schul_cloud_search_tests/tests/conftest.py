@@ -367,6 +367,14 @@ def second_search(linked_search):
 
 
 @fixture
+def third_search(linked_search):
+    """The third of the linked searches."""
+    if len(linked_search) < 3:
+        pytest.skip("Not enough searches with a limit.")
+    return linked_search[2]
+
+
+@fixture
 def last_search(linked_search):
     """The last of the linked searches."""
     return linked_search[-1]

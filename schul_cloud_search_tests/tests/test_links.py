@@ -122,7 +122,6 @@ def test_last_link_implies_next_link_for_all_but_last_request(
     assertServerReplyIsWrong(not_last_search.request())
 
 
-@mark.current
 def test_first_implies_prev_link_for_all_but_first_request(second_search):
     """If the first link is given, also a prev link must be given.
     
@@ -132,3 +131,21 @@ def test_first_implies_prev_link_for_all_but_first_request(second_search):
     second_search.response["links"]["prev"] = None
     assertServerReplyIsWrong(second_search.request())
     
+
+def test_next_link_does_not_skip_objects(first_search, second_search):
+    """The next link must follow directly."""
+    first_search.response["links"]["next"] = second_search.response["links"]["next"]
+    assertServerReplyIsWrong(first_search.request())
+
+@mark.current
+def test_prev_link_does_not_skip_objects(second_search, third_search):
+    """The prev link must precede directly."""
+    third_search.response["links"]["prev"] = second_search.response["links"]["prev"]
+    assertServerReplyIsWrong(third_search.request())
+
+
+
+
+
+
+
