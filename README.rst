@@ -81,8 +81,8 @@ These cases can be defined and are defined:
 
 To make the decisions transparent, the client request and the server response are included in the error reponses.
 
-Usage
------
+Usage as Proxy
+--------------
 
 Suppose you have a server running on http://localhost:1234/v1/search/.
 You can tun the search engine tests as a proxy on port 8080 like this:
@@ -103,6 +103,25 @@ or run this command:
 
 The return code is zero (success) if all tests of all requests passed.
 If one test fails, it is a number greater than zero.
+
+Usage as Tests
+--------------
+
+In case you have a search engine which should be tested at the URL, you can run tests against it with the following command
+
+.. code:: shell
+
+    python3 -m schul_cloud_search_tests.search http://loalhost:8080 \
+               --query "Q=einstein" --query "Q=test&page[offset]=20"
+
+The tests test the following:
+
+- There is a search engine running at http://loalhost:8080
+- These queries ``Q=einstein`` and ``Q=test&page[offset]=20`` are handled correctly.
+- Additional tests are run wich test correct and malformed queries,
+  see `Issue 6 <https://github.com/schul-cloud/schul_cloud_search_tests/issues/6>`__.
+
+The return status of the tests is zero if all tests passed, otherwise a positive number.
 
 Development Process
 -------------------
