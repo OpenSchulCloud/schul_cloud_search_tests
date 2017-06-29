@@ -59,11 +59,13 @@ def pytest_generate_tests(metafunc):
         metafunc.parametrize("query", queries)
 
 
-@fixture
-def search_url(metafunc):
+@fixture(scope="session")
+def search_url(request):
     """This is the url of the search engine to connect to.
+    
+    The url is passed as the parameter --url.
     """
-    return metafunc.config.option.url
+    return request.config.getoption("--url")
 
 
 @fixture(scope="session")
@@ -99,24 +101,25 @@ def validateRequest(search_url, search_tests_url, secret):
                     print(error.get("detail"))
                  print()
             assert False, "search engine tests failed."
+        return result
     return validateRequest
 
 
 @fixture(scope="session")
-def search_tests_url(host, secret):
+def search_tests_url(search_url, secret):
     """The url of the search engine tests."""
-    search_app = get_app(target_url=host, sercet=secret)
+    search_app = get_app(target_url=search_url, secret=secret)
     search_server = ParallelBottleServer(search_app)
     yield search_server.url
     search_server.shutdown()
 
 
-@fixture
-def max_depth(metafunc):
+@fixture(scope="session")
+def max_depth(request):
     """Return a number of requests to perform at maximum.
     
     This limits the number of requests which are executed
     to get all search results.
-    The can be specified by the command line parameter --maxdepth.
+    The can be specified by the command line parameter --max-depth.
     """
-    return int(metafunc.config.option.maxdepth)
+    return int(request.config.getoption("--max-depth"))

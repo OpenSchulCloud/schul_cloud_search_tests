@@ -3,6 +3,8 @@ This file contains the test that validates the result.
 
 
 """
+from pytest import mark
+
 
 def get_href(link):
     """Return the reference of the link."""
@@ -46,12 +48,12 @@ def test_linked_resources(query, validateRequest, max_depth):
     assert len(last_links) == 1, "All results should have the same last link."
 
 
-@pytest.skip(reason="TODO")
+@mark.skip(reason="TODO")
 def test_sorting():
     """Test the sort parameter as described by the jsonapi."""
 
 
-@pytest.skip(reason="TODO")
+@mark.skip(reason="TODO")
 def test_filtering():
     """Test the filtering as described by the json api and search api."""
 

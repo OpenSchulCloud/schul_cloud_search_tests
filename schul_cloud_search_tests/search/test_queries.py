@@ -7,12 +7,9 @@ You can view examples of such tests in the Issue 6.
 The idea is to use these tests to verify the behavior of the search api.
     https://github.com/schul-cloud/resources-api-v1#search-api
 """
-from schul_cloud_search_tests.search.assertions import (
-    assertSearchEngineRespondedCorrectly)
 from schul_cloud_search_tests.tests.test_request import (
     MALFORMED_PARAMETERS)
 from pytest import mark
-import pytest
 
 
 def test_q_is_missing(validateRequest):
@@ -20,9 +17,9 @@ def test_q_is_missing(validateRequest):
     validateRequest({})
 
 
-@mark.parametrize(parameter, [parameter for 
-                              parameter, parameter_is_valid in
-                              MALFORMED_PARAMETERS if not parameter_is_valid])
+@mark.parametrize("parameter", [parameter for 
+                                parameter, parameter_is_valid in
+                                MALFORMED_PARAMETERS if not parameter_is_valid])
 def test_malformed_parameters(validateRequest, parameter):
     """Test that the list of malformed parameters results in a 400 answer."""
     validateRequest({parameter:"0"})
