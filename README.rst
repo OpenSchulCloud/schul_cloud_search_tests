@@ -111,12 +111,12 @@ In case you have a search engine which should be tested at the URL, you can run 
 
 .. code:: shell
 
-    python3 -m schul_cloud_search_tests.search http://loalhost:8080 \
+    python3 -m schul_cloud_search_tests.search http://loalhost:8080/v1/search \
                --query "Q=einstein" --query "Q=test&page[offset]=20"
 
 The tests test the following:
 
-- There is a search engine running at http://loalhost:8080
+- There is a search engine running at http://loalhost:8080/v1/search
 - These queries ``Q=einstein`` and ``Q=test&page[offset]=20`` are handled correctly.
 - Additional tests are run wich test correct and malformed queries,
   see `Issue 6 <https://github.com/schul-cloud/schul_cloud_search_tests/issues/6>`__.
