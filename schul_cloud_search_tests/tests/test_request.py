@@ -40,8 +40,7 @@ def test_q_is_a_required_query(search_engine):
     assert meta["source-line"] == test_request_has_query.__code__.co_firstlineno
 
 
-@mark.current
-@mark.parametrize("parameter,parameter_is_correct", [
+MALFORMED_PARAMETERS = [
         ("asd", False),
         ("", False),
         ("A", True),
@@ -66,7 +65,11 @@ def test_q_is_a_required_query(search_engine):
         ("filter[", False),
         ("родина", True),
         ("родина", True),
-    ])
+    ]
+
+
+@mark.current
+@mark.parametrize("parameter,parameter_is_correct", MALFORMED_PARAMETERS)
 def test_all_parameter_names_are_jsonapi_compatible(
         search_engine, parameter, parameter_is_correct):
     """make sure the valid and invalid parameters are fed back."""
