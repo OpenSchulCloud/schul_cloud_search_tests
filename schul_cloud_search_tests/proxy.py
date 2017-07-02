@@ -96,7 +96,7 @@ def check_response(target_url, secret=""):
     client_errors = run_request_tests(server_url)
     return_error = (400 if client_errors else 409)
     answer = requests.get(server_url, headers=request.headers)
-    server_errors = run_response_tests(server_url, answer, secret=secret)
+    server_errors = run_response_tests(server_url, answer)
     try:
         result = answer.json()
     except (JSONDecodeError):

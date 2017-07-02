@@ -7,7 +7,8 @@ from urllib.parse import parse_qs, urlencode
 import requests
 import sys
 import os
-from schul_cloud_resources_server_tests.tests.fixtures import ParallelBottleServer
+from schul_cloud_resources_server_tests.tests.fixtures import (
+    ParallelBottleServer)
 import time
 from pprint import pprint
 
@@ -89,7 +90,9 @@ def validateRequest(search_url, search_tests_url, secret):
             url = search_tests_url + query[len(search_url):]
         else:
             raise TypeError("query must be either dict or str.")
-        result = requests.get(url, headers=headers)
+        h = {"Content-Type": "application/vnd.api+json"}
+        h.update(headers)
+        result = requests.get(url, headers=h)
         if result.json()["jsonapi"]["meta"].get("secret") == secret:
             for error in result.errors:
                  meta = error.get("meta")
