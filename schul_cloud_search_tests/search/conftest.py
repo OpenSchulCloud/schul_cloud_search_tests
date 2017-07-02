@@ -86,8 +86,11 @@ def validateRequest(search_url, search_tests_url, secret):
         if isinstance(query, dict):
             url = search_tests_url + "?" + urlencode(query)
         elif isinstance(query, str):
-            assert query.startswith(search_url)
-            url = search_tests_url + query[len(search_url):]
+            if query.startswith(search_tests_url):
+                url = query
+            else:
+                assert query.startswith(search_url)
+                url = search_tests_url + query[len(search_url):]
         else:
             raise TypeError("query must be either dict or str.")
         h = {"Content-Type": "application/vnd.api+json"}

@@ -15,15 +15,16 @@ def get_href(link):
     return link
 
 
+@mark.current
 def test_self_link_works_multiple_times(query, validateRequest):
     """The self link can be requested again.
     
     At least the self link should be the same.
     However here, we assume the same response is given.
     """
-    first_result = validateRequest(query)
-    href = first_result.json()["links"]["self"]["href"]
-    second_result = validateRequest(href)
+    first_result = validateRequest(query).json()
+    href = first_result["links"]["self"]["href"]
+    second_result = validateRequest(href).json()
     assert first_result == second_result
 
 
