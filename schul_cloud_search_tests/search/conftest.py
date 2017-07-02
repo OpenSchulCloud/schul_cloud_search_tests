@@ -35,7 +35,7 @@ def pytest_addoption(parser):
     parser.addoption("--url", action="store",
         default="http://localhost:8080/v1/search",
         help="url: the url of the server api to connect to")
-    parser.addoption("--maxdepth", action="store", default=20,
+    parser.addoption("--max-depth", action="store", default=20,
         help="max-depth: This limits the number of requests"
              "which are executed to get all search results.")
     parser.addoption("--query", action="append", default=[],
