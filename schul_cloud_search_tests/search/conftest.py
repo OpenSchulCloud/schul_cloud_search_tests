@@ -96,15 +96,16 @@ def validateRequest(search_url, search_tests_url, secret):
         h = {"Content-Type": "application/vnd.api+json"}
         h.update(headers)
         result = requests.get(url, headers=h)
-        if result.json()["jsonapi"]["meta"].get("secret") == secret:
-            for error in result.errors:
+        result_json = result.json()
+        if result_json["jsonapi"]["meta"].get("secret") == secret:
+            for error in result_json["errors"]:
                  meta = error.get("meta")
                  if meta:
-                     print(error.get("traceback"))
+                     print(meta.get("traceback"))
                      print(error.get("detail"))
-                     print(error.get("github-url"))
+                     print(meta.get("github-url"))
                  else:
-                    print(error.get("detail"))
+                    print("Error:", error.get("detail"))
                  print()
             assert False, "search engine tests failed."
         return result
