@@ -49,12 +49,21 @@ def test_linked_resources(query, validateRequest, max_depth):
     assert len(last_links) == 1, "All results should have the same last link."
 
 
-@mark.skip(reason="TODO")
-def test_sorting():
-    """Test the sort parameter as described by the jsonapi."""
+@mark.parametrize("sort", ["title", "title,url", "-url,title"])
+def test_sorting(validateRequest, sort):
+    """Test the sort parameter as described by the jsonapi.
+    
+    http://jsonapi.org/format/#fetching-sorting
+    """
+    validateRequest({"Q": "test", "sort": sort})
 
 
-@mark.skip(reason="TODO")
-def test_filtering():
-    """Test the filtering as described by the json api and search api."""
-
+def test_filtering(validateRequest):
+    """Test the filtering as described by the json api and search api.
+    
+    See
+    - https://github.com/schul-cloud/resources-api-v1/#search-api
+    - http://jsonapi.org/format/#fetching-filtering
+    """
+    validateRequest({"Q": "test", "filter[title]": "test"})
+    
