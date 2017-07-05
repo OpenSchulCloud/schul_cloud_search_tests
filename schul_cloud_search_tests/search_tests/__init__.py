@@ -1,5 +1,8 @@
 """
-Run the tests.
+These tests are run by the proxy.
+They test whether requests of the client and responses of the server are correct.
+
+The tests in schul_cloud_search_tests.tests test that these tests work.
 
 """
 import pytest
