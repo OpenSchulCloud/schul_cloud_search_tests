@@ -91,7 +91,6 @@ def test_no_resources_imply_no_links_to_other_searches(first_search, link_name):
     assertServerReplyIsWrong(first_search.request())
 
 
-# TODO: issue: add huge offset search to tests
 @mark.parametrize("link_name", ["first", "last"])
 def test_search_with_offset_too_high_can_have_links(high_offset_search, first_search, link_name):
     """If a search requests an offset too high,
