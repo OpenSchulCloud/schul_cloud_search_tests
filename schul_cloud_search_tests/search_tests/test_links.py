@@ -61,7 +61,6 @@ def test_offset(self_link, offset):
     assert self_link["meta"]["offset"] == offset
 
 
-# TODO: put this into the specification to make it clear
 def test_the_end_is_reached(self_link, links):
     """If the end of the resource list is reached, count may be less than limit.
     
