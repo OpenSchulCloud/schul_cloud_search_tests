@@ -80,7 +80,6 @@ def test_next_link_of_last_request_must_be_null(last_search):
     assertServerReplyIsWrong(last_search.request())
 
 
-# TODO: issue: request something with no resources
 @mark.parametrize("link_name", ["first", "last", "prev", "next"])
 def test_no_resources_imply_no_links_to_other_searches(first_search, link_name):
     if len(first_search.resources) != 0:
@@ -174,7 +173,6 @@ def test_relative_links_are_not_allowed(second_search, third_search, link_name):
     assertServerReplyIsWrong(second_search.request())
 
 
-@mark.current
 def test_requests_beyond_the_last_must_not_have_objects(
         first_search, second_search):
     """A request beyond the last link, there shall be no objects to return.
