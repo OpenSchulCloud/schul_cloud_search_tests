@@ -133,15 +133,6 @@ def test_prev_does_not_skip_objects(links, self_link):
         self_offset = self_link["meta"]["offset"]
         limit = self_link["meta"]["limit"]
         assert prev_offset == self_offset - limit, "The offset of the prev link must be decreased by the limit."
-            
-
-
-@mark.skip(reason="TODO")
-def test_retrieve_object_with_self_link():
-    """If the object has a self link, it can be retrieved.
-    
-    This must be tested in parallel to reduce the waiting time.
-    """
 
 
 @mark.parametrize("link_name", ["prev", "next", "last", "first", "self"])
