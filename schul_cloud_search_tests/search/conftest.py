@@ -3,7 +3,7 @@ This file contains the fixtures used in the tests in the same folder.
 
 """
 from pytest import fixture
-from urllib.parse import parse_qs, urlencode
+from urllib.parse import parse_qs, urlencode, urlparse
 import requests
 import sys
 import os
@@ -87,7 +87,7 @@ def validateRequest(search_url, search_tests_url, secret):
             url = search_tests_url + "?" + urlencode(query)
         elif isinstance(query, str):
             if query.startswith(search_tests_url):
-                url = query
+                url = search_tests_url + "?" + urlparse(query).query
             else:
                 assert query.startswith(search_url)
                 url = search_tests_url + query[len(search_url):]
@@ -96,7 +96,11 @@ def validateRequest(search_url, search_tests_url, secret):
         h = {"Content-Type": "application/vnd.api+json"}
         h.update(headers)
         result = requests.get(url, headers=h)
-        result_json = result.json()
+        try:
+            result_json = result.json()
+        except:
+            print("Requesting", query, "->", url)
+            raise
         if result_json["jsonapi"]["meta"].get("secret") == secret:
             for error in result_json["errors"]:
                  meta = error.get("meta")
