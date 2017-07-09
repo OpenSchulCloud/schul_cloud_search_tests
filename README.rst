@@ -89,10 +89,10 @@ You can tun the search engine tests as a proxy on port 8080 like this:
 
 .. code:: shell
 
-    python3 -m schul_cloud_search_tests.proxy 8080 /endpoint/ http://localhost:1234/v1/search/
+    python3 -m schul_cloud_search_tests.proxy http://localhost:1234/v1/search 8080 /endpoint/
 
 Now, all your requests to http://localhost:8080/endpoint/ will be forwarded to 
-http://localhost:1234/v1/search/.
+http://localhost:1234/v1/search.
 
 When you are done, you can visit http://localhost:8080/stop to stop the server
 or run this command:
@@ -103,6 +103,12 @@ or run this command:
 
 The return code is zero (success) if all tests of all requests passed.
 If one test fails, it is a number greater than zero.
+
+Note that the defaults are
+
+.. code:: shell
+
+    python3 -m schul_cloud_search_tests.proxy http://localhost:8080/v1/search 8081 /v1/search
 
 Usage as Tests
 --------------
