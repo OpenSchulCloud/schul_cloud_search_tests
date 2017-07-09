@@ -155,4 +155,9 @@ def main(host="0.0.0.0", port=8081, endpoint="/", target_url="http://localhost:8
 __all__ = ["main", "run", "get_app"]
 
 if __name__ == "__main__":
-    main()
+    kw = {"host": "0.0.0.0"}
+    kw["target_url"] = (sys.argv[1] if len(sys.argv) >= 2 else "http://localhost:8080/v1/search")
+    kw["port"] = (int(sys.argv[2]) if len(sys.argv) >= 3 else 8081) 
+    kw["endpoint"] = (sys.argv[3] if len(sys.argv) >= 4 else "/v1/search")
+    print("Forwarding traffic from http://{host}:{port}{endpoint} to {target_url}".format(**kw))
+    main(**kw)
