@@ -104,11 +104,15 @@ or run this command:
 The return code is zero (success) if all tests of all requests passed.
 If one test fails, it is a number greater than zero.
 
-Note that the defaults are
+Note that the defaults are as follows.
+The command in each line is the same.
 
 .. code:: shell
 
     python3 -m schul_cloud_search_tests.proxy http://localhost:8080/v1/search 8081 /v1/search
+    python3 -m schul_cloud_search_tests.proxy http://localhost:8080/v1/search 8081
+    python3 -m schul_cloud_search_tests.proxy http://localhost:8080/v1/search
+    python3 -m schul_cloud_search_tests.proxy
 
 Usage as Tests
 --------------
