@@ -2,7 +2,7 @@
 set -e
 
 echo "Starting server."
-python -m schul_cloud_search_tests.proxy 8081 /endpoint/ http://localhost:8080/v1/search/ &
+python -m schul_cloud_search_tests.proxy
 PID=$!
 echo "..."
 sleep 1
