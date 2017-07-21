@@ -101,9 +101,13 @@ def check_response(target_url, secret=""):
         result = answer.json()
     except (JSONDecodeError):
         result = None
-    if client_errors and answer.status_code != 400 or server_errors:
-        errors = client_errors + server_errors
-        return pytest_errors(return_error, errors, server_url, result,
+    all_errors = []
+    if client_errors and answer.status_code != 400:
+        all_errors += client_errors
+    if server_errors:
+        all_errors += server_errors
+    if all_errors:
+        return pytest_errors(return_error, all_errors, server_url, result,
                              secret=secret)
     assert result is not None, "The tests take care that there is a result."
     response.status = answer.status_code
