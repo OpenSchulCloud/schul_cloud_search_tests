@@ -39,7 +39,7 @@ def test_invalid_return_values_are_handled(search_engine, invalid_response):
 
 
 @mark.parametrize("content_type", [
-    "application/json", "ajhkjf", "application/vnd.api+json; version=1"])
+    "application/json", "ajhkjf", "application/vnd.api+json1"])
 def test_invalid_return_header_type_is_handled(search_engine, content_type):
     """The header must be correct.
     
