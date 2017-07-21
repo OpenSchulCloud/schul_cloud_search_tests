@@ -183,7 +183,7 @@ class SearchEngine(object):
             response.set_header(header, value)
         response.status = status_code
         if isinstance(json_response, dict):
-            return json.dumps(json_response)
+            return json.dumps(json_response).encode("UTF-8")
         return json_response
 
     def request(self,

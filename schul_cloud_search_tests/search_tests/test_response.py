@@ -22,6 +22,7 @@ def test_result_is_json(result):
     try:
         json = result.json()
     except:
+        print("Result:", result.content)
         assert False, "The result must be a valid json object, not {}".format(result.content)
     else:
         assert isinstance(json, dict), "The result must be a json object, not {}".format(json)
@@ -54,7 +55,9 @@ def test_the_content_type_is_from_the_jsonapi(result):
     See here:
     - http://jsonapi.org/format/#content-negotiation-clients
     """
-    assert result.headers.get("Content-Type", "") == "application/vnd.api+json", "The content type of the server reply must be application/vnd.api+json."
+    content_type = result.headers.get("Content-Type", "")
+    content_type_without_parameters = content_type.split(";", 1)[0]
+    assert content_type_without_parameters == "application/vnd.api+json", "The content type of the server reply must be application/vnd.api+json."
 
 
 def test_406_error_is_expected_in_case_of_invalid_accept_headers(

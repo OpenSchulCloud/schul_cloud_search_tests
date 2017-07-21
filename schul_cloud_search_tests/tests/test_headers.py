@@ -2,6 +2,7 @@ from pytest import mark
 from schul_cloud_search_tests.tests.assertions import (
     assertIsError, ERROR_SERVER_RESPONSE, ERROR)
 import copy
+from pprint import pprint
 
 INVALID_ACCEPT_HEADERS = [
         "application/vnd.api+json; v=1",
@@ -72,6 +73,35 @@ def test_allow_list_of_accept_headers(search_engine, valid_accept_header):
         {"Authorization": "basic basic===", "X-Asd": "22"},
     ])
 def test_search_engine_passes_headers_through(search_engine, headers):
+    """Test that certain headers pass through the proxy.
+    
+    """
     search_engine.request(headers=headers)
     for key, value in headers.items():
         assert search_engine.last_request_headers[key] == value
+
+
+@mark.parametrize("headers", [
+        {"Content-Type": "application/vnd.api+json; charset=UTF-8"},
+        {"Content-Type": "application/vnd.api+json; Y2736487=sdfsdf"},
+        {"Content-Type": "application/vnd.api+json; charset=UTF-8,jsdhfgaskfgdskgfkjas"},
+        {"Content-Type": "application/vnd.api+json; charset=UTF-8sjhfkjafsd"},
+        {"Test-Header": "123"}
+    ])
+def test_response_content_type_headers_are_accepted(search_engine, headers):
+    """Make sure that different returned content types are accepted by the proxy.
+    
+    See Issue 11
+        https://github.com/schul-cloud/schul_cloud_search_tests/issues/11
+    
+    > Clients MUST ignore any parameters for the application/vnd.api+json media type received in the Content-Type header of response documents.
+    - http://jsonapi.org/format/#content-negotiation-clients
+    """
+    response = search_engine.host(headers=headers).request()
+    result = response.json()
+    pprint(result)
+    assert result == search_engine.last_response
+    for key, value in headers.items():
+        assert response.headers[key] == value
+
+

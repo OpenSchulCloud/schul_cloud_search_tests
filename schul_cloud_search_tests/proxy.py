@@ -4,6 +4,7 @@ from bottle import (
 import sys
 import os
 import shutil
+import json
 import requests
 try:
     from json import JSONDecodeError
@@ -111,7 +112,8 @@ def check_response(target_url, secret=""):
                              secret=secret)
     assert result is not None, "The tests take care that there is a result."
     response.status = answer.status_code
-    return result
+    response.headers.update(answer.headers)
+    return json.dumps(result).encode("UTF-8")
 
 
 def get_code(path=None, ending=None):
