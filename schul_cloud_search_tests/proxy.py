@@ -67,9 +67,17 @@ error_code_to_name = {
   500: "Internal Server Error"
 }
 
-
 def create_error_response(status, errors, server_url, answer=None, secret=""):
-    """Return the formatted pytest errors, jsonapi compatible."""
+    """Return the formatted pytest errors, jsonapi compatible.
+    
+    - status is the status code of the response
+    - errors is a list of errors
+    - server_url is the url of this server
+    - answer is optional and the reponse the proxy got from
+      the server to test
+    - secret is a secret to include in the response to verify this
+      response came from this proxy.
+    """
     response.status = status
     error_text = error_code_to_name[status]
     code = "http://" + request.headers["host"] + "/code"
@@ -122,7 +130,12 @@ def get_server_url(target_url):
 
 
 def check_response(target_url, secret=""):
-    """Test the request and the response to the search engine."""
+    """Test the request and the response to the search engine.
+    
+    - target_url is the url to request
+    - secret is the secret to inlcude in the response to make sure the
+      response is from the tests.
+    """
     print("query string:", request.query_string)
     server_url = get_server_url(target_url)
     client_errors = run_request_tests(server_url)
@@ -148,7 +161,13 @@ def check_response(target_url, secret=""):
 
 
 def get_code(path=None, ending=None):
-    """Return a directory listing or a static file."""
+    """Return a directory listing or a static file.
+    
+    Serve "/code", "/code/*" and "/code.zip"
+    
+    - path is None or a path to a file to view
+    - ending is either None or ".zip"
+    """
     if ending is not None:
         assert ending == ".zip"
         redirect("/code/{}.zip".format(APPLICATION))
