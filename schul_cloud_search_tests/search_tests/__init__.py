@@ -72,26 +72,30 @@ def get_source_url(function, base=None):
 
 def add_failing_test(ty, err, tb):
     """Add a failing test to the tests of this request."""
+    _local.failing_tests.append(error_to_jsonapi(ty, err, tb))
+
+
+def error_to_jsonapi(ty, err, tb, status=500, title="Internal Server Error"):
+    """Create a jsonapi error response from a python error."""
     file = io.StringIO()
     traceback.print_exception(ty, err, tb, file=file)
     tb_string = file.getvalue()
     test = get_test_function(tb)
-    _local.failing_tests.append({
-          "status": 500, 
-          "title": "Internal Server Error",
-          "detail": ty.__name__ + ": " + str(err),
-          "meta": {
-            "traceback" : tb_string,
-            "documentation": (test.__doc__ if test else None),
-            "test_function": (test.__name__ if test else None),
-            "source": (get_source_url(test) if test else None),
-            "source-line": (test.__code__.co_firstlineno if test else None),
-            "error-class": ty.__module__ + "." + ty.__name__,
-            "error": str(err),
-            "github-url": (get_source_url(test, SOURCE_BASE) if test else None),
-          }
-        })
-
+    return {
+        "status": status, 
+        "title": title,
+        "detail": ty.__name__ + ": " + str(err),
+        "meta": {
+          "traceback" : tb_string,
+          "documentation": (test.__doc__ if test else None),
+          "test_function": (test.__name__ if test else None),
+          "source": (get_source_url(test) if test else None),
+          "source-line": (test.__code__.co_firstlineno if test else None),
+          "error-class": ty.__module__ + "." + ty.__name__,
+          "error": str(err),
+          "github-url": (get_source_url(test, SOURCE_BASE) if test else None),
+        }
+      }
 
 def _run_tests_and_collect_errors(request_url, args):
     """Run the tests and collect the errors in these tests."""

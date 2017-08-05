@@ -6,6 +6,8 @@ import os
 import shutil
 import json
 import requests
+import traceback
+import io
 try:
     from json import JSONDecodeError
 except ImportError:
@@ -58,11 +60,18 @@ LISTING_TEMPLATE = SimpleTemplate(
 </html>
 """)
 
+error_code_to_name = {
+  400: "Bad Request",
+  404: "Not Found",
+  409: "Conflict",
+  500: "Internal Server Error"
+}
 
-def pytest_errors(status, errors, server_url, answer=None, secret=""):
+
+def create_error_response(status, errors, server_url, answer=None, secret=""):
     """Return the formatted pytest errors, jsonapi compatible."""
     response.status = status
-    error_text = ("Bad Request" if status == 400 else "Conflict")
+    error_text = error_code_to_name[status]
     code = "http://" + request.headers["host"] + "/code"
     result = {
       "errors":[
@@ -72,7 +81,8 @@ def pytest_errors(status, errors, server_url, answer=None, secret=""):
           "detail": "The request or response contained some errors.",
           "meta": {
             "url": server_url,
-            "response": answer
+            "response": answer,
+            "proxy": "http://" + request.headers.get("host", "??") + request.path + "?" + request.query_string
           }
         }
       ] + errors,
@@ -87,13 +97,34 @@ def pytest_errors(status, errors, server_url, answer=None, secret=""):
         }
       }
     }
-    return result
+    return json.dumps(result, indent="  ").encode("UTF-8")
+
+
+def jsonapi_error(error, code, target_url, secret=""):
+    """Return an error as json"""
+    ty, err, tb = type(error.exception), error.exception, getattr(error, "traceback", None)
+    if err:
+        meta = {"traceback": tb}
+        errors = [{
+            "status": str(code), 
+            "title": error_code_to_name[code],
+            "detail": ty.__name__ + ": " + str(err),
+            "meta": meta
+        }]
+    else:
+        errors = []
+    return create_error_response(code, errors, get_server_url(target_url), secret=secret)
+
+
+def get_server_url(target_url):
+    """Return the url on the server."""
+    return target_url + "?" + request.query_string
 
 
 def check_response(target_url, secret=""):
     """Test the request and the response to the search engine."""
     print("query string:", request.query_string)
-    server_url = target_url + "?" + request.query_string
+    server_url = get_server_url(target_url)
     client_errors = run_request_tests(server_url)
     return_error = (400 if client_errors else 409)
     answer = requests.get(server_url, headers=request.headers)
@@ -108,8 +139,8 @@ def check_response(target_url, secret=""):
     if server_errors:
         all_errors += server_errors
     if all_errors:
-        return pytest_errors(return_error, all_errors, server_url, result,
-                             secret=secret)
+        return create_error_response(return_error, all_errors, server_url, result,
+                                     secret=secret)
     assert result is not None, "The tests take care that there is a result."
     response.status = answer.status_code
     response.headers.update(answer.headers)
@@ -142,6 +173,8 @@ def get_app(endpoint="/", target_url="http://localhost:8080", secret=""):
     app.get(endpoint, callback=lambda: check_response(target_url, secret=secret))
     for code_endpoint in ENDPOINT_CODE:
         app.get(code_endpoint, callback=get_code)
+    for code in [404, 500]:
+       app.error(code)(lambda error, code=code: jsonapi_error(error, code, target_url, secret=secret))
     return app
 
 
