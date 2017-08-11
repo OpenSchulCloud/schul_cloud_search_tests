@@ -121,6 +121,7 @@ def jsonapi_error(error, code, target_url, secret=""):
         }]
     else:
         errors = []
+    response.headers["Content-Type"] = "application/vnd.api+json"
     return create_error_response(code, errors, get_server_url(target_url), secret=secret)
 
 
