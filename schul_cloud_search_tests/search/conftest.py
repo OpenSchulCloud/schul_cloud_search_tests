@@ -84,10 +84,15 @@ def validateRequest(search_url, search_tests_url, secret):
     """
     def validateRequest(query=DEFAULT_QUERIES[0], headers={}):
         if isinstance(query, dict):
-            url = search_tests_url + "?" + urlencode(query)
+            url = search_tests_url
+            if query:
+                url += "?" + urlencode(query)
         elif isinstance(query, str):
             if query.startswith(search_tests_url):
-                url = search_tests_url + "?" + urlparse(query).query
+                url = search_tests_url
+                query_string = urlparse(query).query
+                if query_string:
+                    url += "?" + query_string
             else:
                 assert query.startswith(search_url)
                 url = search_tests_url + query[len(search_url):]

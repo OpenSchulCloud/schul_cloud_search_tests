@@ -127,8 +127,10 @@ def jsonapi_error(error, code, target_url, secret=""):
 
 def get_server_url(target_url):
     """Return the url on the server."""
-    return target_url + "?" + request.query_string
-
+    if request.query_string:
+        return target_url + "?" + request.query_string
+    else:
+        return target_url
 
 def print_curl_command(target_url):
     target = get_server_url(target_url)
