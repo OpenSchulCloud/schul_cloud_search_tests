@@ -130,6 +130,14 @@ def get_server_url(target_url):
     return target_url + "?" + request.query_string
 
 
+def print_curl_command(target_url):
+    target = get_server_url(target_url)
+    headers = ""
+    for header, value in request.headers.items():
+        headers += " -H '{}: {}'".format(header, value)
+    print("curl -i{headers} '{target}'".format(target=target, headers=headers))
+
+
 def check_response(target_url, secret=""):
     """Test the request and the response to the search engine.
     
@@ -137,7 +145,7 @@ def check_response(target_url, secret=""):
     - secret is the secret to inlcude in the response to make sure the
       response is from the tests.
     """
-    print("query string:", request.query_string)
+    print_curl_command(target_url)
     server_url = get_server_url(target_url)
     client_errors = run_request_tests(server_url)
     return_error = (400 if client_errors else 409)
