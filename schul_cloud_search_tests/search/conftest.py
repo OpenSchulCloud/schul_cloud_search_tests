@@ -10,6 +10,7 @@ import os
 from schul_cloud_resources_server_tests.tests.fixtures import (
     ParallelBottleServer)
 import time
+import json
 from pprint import pprint
 
 HERE = os.path.dirname(__file__)
@@ -83,12 +84,17 @@ def validateRequest(search_url, search_tests_url, secret):
     the response is printed and an AssertionError is raised.
     """
     def validateRequest(query=DEFAULT_QUERIES[0], headers={}):
-        assert isinstance(query, dict), "The query argument must be a dict."
+        if isinstance(query, dict):
+            query_string = urlencode(query)
+        elif isinstance(query, str):
+            query_string = urlparse(query).query
+        else:
+           raise TypeError("The query argument must be a dict or str.")
         url = search_tests_url
         test_url = search_url
-        if query:
-            url += "?" + urlencode(query)
-            test_url += "?" + urlencode(query)
+        if query_string:
+            url += "?" + query_string
+            test_url += "?" + query_string
         h = {"content-type": "application/vnd.api+json"}
         for header, value in headers.items():
             h[header.lower()] = value
