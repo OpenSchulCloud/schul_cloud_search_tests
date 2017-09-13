@@ -83,23 +83,22 @@ def validateRequest(search_url, search_tests_url, secret):
     the response is printed and an AssertionError is raised.
     """
     def validateRequest(query=DEFAULT_QUERIES[0], headers={}):
-        if isinstance(query, dict):
-            url = search_tests_url + "?" + urlencode(query)
-        elif isinstance(query, str):
-            if query.startswith(search_tests_url):
-                url = search_tests_url + "?" + urlparse(query).query
-            else:
-                assert query.startswith(search_url)
-                url = search_tests_url + query[len(search_url):]
-        else:
-            raise TypeError("query must be either dict or str.")
-        h = {"Content-Type": "application/vnd.api+json"}
-        h.update(headers)
+        assert isinstance(query, dict), "The query argument must be a dict."
+        url = search_tests_url
+        test_url = search_url
+        if query:
+            url += "?" + urlencode(query)
+            test_url += "?" + urlencode(query)
+        h = {"content-type": "application/vnd.api+json"}
+        for header, value in headers.items():
+            h[header.lower()] = value
+        print("import requests; print(requests.get({}, headers={}).text)".format(repr(test_url), repr(h)))
         result = requests.get(url, headers=h)
+        result_text = result.text
         try:
-            result_json = result.json()
+            result_json = json.loads(result_text)
         except:
-            print("Requesting", query, "->", url)
+            print("Result text:", repr(result_text))
             raise
         if result_json["jsonapi"]["meta"].get("secret") == secret:
             for error in result_json["errors"]:
