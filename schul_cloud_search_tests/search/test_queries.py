@@ -32,7 +32,7 @@ def test_invalid_paramater_values(validateRequest, param, value):
     
     The answer 400 is expected.
     """
-    validateRequest({param:"0"})
+    validateRequest({param:"0", "Q":"test_invalid_paramater_values"})
 
 
 
