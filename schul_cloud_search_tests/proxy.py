@@ -8,6 +8,7 @@ import json
 import requests
 import traceback
 import io
+import wsgiref.util
 try:
     from json import JSONDecodeError
 except ImportError:
@@ -145,10 +146,20 @@ def get_request_headers():
     """Return the headers which should be used for the request to the server."""
     headers = {}
     for header, header_value in request.headers.items():
-        if header.lower() not in ["content-type", "content-length"]:
+        if header.lower() not in ["content-type", "content-length"] and not wsgiref.util.is_hop_by_hop(header):
             headers[header] = header_value
     return headers
 
+def get_response_headers(response):
+    """Return the headers which can be passed to the response.
+    
+    This removed hop hop headers
+    """
+    headers = {}
+    for header, value in response.headers.items():
+        if not wsgiref.util.is_hop_by_hop(header):
+            headers[header] = value
+    return headers
 
 def check_response(target_url, secret=""):
     """Test the request and the response to the search engine.
@@ -177,7 +188,7 @@ def check_response(target_url, secret=""):
                                      secret=secret)
     assert result is not None, "The tests take care that there is a result."
     response.status = answer.status_code
-    response.headers.update(answer.headers)
+    response.headers.update(get_response_headers(answer))
     return json.dumps(result).encode("UTF-8")
 
 
