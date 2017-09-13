@@ -133,11 +133,21 @@ def get_server_url(target_url):
         return target_url
 
 def print_curl_command(target_url):
+    """Print a curl command which would be the equivalent of this request."""
     target = get_server_url(target_url)
     headers = ""
-    for header, value in request.headers.items():
+    for header, value in get_request_headers().items():
         headers += " -H '{}: {}'".format(header, value)
     print("curl -i{headers} '{target}'".format(target=target, headers=headers))
+
+
+def get_request_headers():
+    """Return the headers which should be used for the request to the server."""
+    headers = {}
+    for header, header_value in request.headers.items():
+        if header.lower() not in ["content-type", "content-length"]:
+            headers[header] = header_value
+    return headers
 
 
 def check_response(target_url, secret=""):
@@ -151,7 +161,7 @@ def check_response(target_url, secret=""):
     server_url = get_server_url(target_url)
     client_errors = run_request_tests(server_url)
     return_error = (400 if client_errors else 409)
-    answer = requests.get(server_url, headers=request.headers)
+    answer = requests.get(server_url, headers=get_request_headers())
     server_errors = run_response_tests(server_url, answer)
     try:
         result = answer.json()
