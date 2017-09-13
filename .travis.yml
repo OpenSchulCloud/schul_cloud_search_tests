@@ -19,6 +19,7 @@ script:
 - pip install dist/*.whl
 - scripts/test-stop.sh
 - scripts/test-proxy.sh
+- scripts/test-server.sh
 
 before_deploy:
 - scripts/create_pypi_login_for_travis.sh
