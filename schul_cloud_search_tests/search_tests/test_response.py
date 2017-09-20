@@ -78,4 +78,4 @@ def test_406_error_is_expected_in_case_of_invalid_accept_headers(
         for possible_content_type in possible_content_types)
     must_be_406 = not content_type_is_accepted
     is_406 = result.status_code == 406
-    assert is_406 == must_be_406, "Error 406 is returned only if the content type is not accepable."
+    assert is_406 == must_be_406, "Error 406 is returned only if the content type is not acceptable."
