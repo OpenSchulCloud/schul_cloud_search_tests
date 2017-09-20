@@ -55,7 +55,7 @@ def pytest_generate_tests(metafunc):
     if "query"  in metafunc.fixturenames:
         queries = list(map(
             lambda qs:
-                {param:values[1] for param, values in parse_qs(qs).items()},
+                {param:values[0] for param, values in parse_qs(qs).items()},
             metafunc.config.option.query))
         queries += DEFAULT_QUERIES[len(queries):]
         metafunc.parametrize("query", queries)
@@ -95,7 +95,8 @@ def validateRequest(search_url, search_tests_url, secret):
         if query_string:
             url += "?" + query_string
             test_url += "?" + query_string
-        h = {"content-type": "application/vnd.api+json"}
+        h = {"content-type": "application/vnd.api+json",
+             "accept-encoding": ""}
         for header, value in headers.items():
             h[header.lower()] = value
         print("import requests; print(requests.get({}, headers={}).text)".format(repr(test_url), repr(h)))
