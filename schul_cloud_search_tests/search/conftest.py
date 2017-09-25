@@ -95,7 +95,7 @@ def validateRequest(search_url, search_tests_url, secret):
         if query_string:
             url += "?" + query_string
             test_url += "?" + query_string
-        h = {"content-type": "application/vnd.api+json",
+        h = {"accept": "application/vnd.api+json",
              "accept-encoding": ""}
         for header, value in headers.items():
             h[header.lower()] = value

@@ -6,10 +6,10 @@ from pprint import pprint
 
 INVALID_ACCEPT_HEADERS = [
         "application/vnd.api+json; v=1",
-        "application/json",
+        # "application/json", # this is too general for a content type dispatch
         "application/json,application/vnd.api+json; v=1,",
-        "image/jpeg",
-        ""
+        #"image/jpeg", # this is too general for a content type dispatch
+        #"" # this is too general for a content type dispatch
     ]
 
 
