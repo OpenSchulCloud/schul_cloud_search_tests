@@ -15,6 +15,6 @@ pytest==3.1.2
 python-dateutil==2.6.0    # via schul-cloud-resources-api-v1, schul-cloud-resources-server-tests
 requests==2.18.1
 schul-cloud-resources-api-v1==1.0.0.277
-schul-cloud-resources-server-tests==1.0.226
+schul-cloud-resources-server-tests==1.0.260
 six==1.10.0               # via python-dateutil, schul-cloud-resources-api-v1, schul-cloud-resources-server-tests
 urllib3==1.21.1           # via requests, schul-cloud-resources-api-v1, schul-cloud-resources-server-tests
