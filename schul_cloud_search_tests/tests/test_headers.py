@@ -105,3 +105,17 @@ def test_response_content_type_headers_are_accepted(search_engine, headers):
         assert response.headers[key] == value
 
 
+@mark.parametrize("header", [
+    ("Content-Length", "30000000"),
+    ("Connection", "keep-alive"),
+    ("Proxy-Authenticate", "asd")
+  ])
+def test_headers_are_not_passed_though(search_engine, header):
+    """Make sure certain headers are not passed on by the seach proxy.
+    
+    Hop by Hop and content type are headers which should not be passed on.
+    """
+    response = search_engine.host(headers={header[0]: header[1]}).request()
+    for key, value in response.headers.items():
+        if key.lower() == header[0].lower():
+            assert value != header[1]

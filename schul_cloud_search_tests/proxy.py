@@ -141,12 +141,15 @@ def print_curl_command(target_url):
         headers += " -H '{}: {}'".format(header, value)
     print("curl -i{headers} '{target}'".format(target=target, headers=headers))
 
+def can_pass_header_though(header):
+    """Return whether the header can be passed through a proxy."""
+    return header.lower() not in ["content-length"] and not wsgiref.util.is_hop_by_hop(header)
 
 def get_request_headers():
     """Return the headers which should be used for the request to the server."""
     headers = {}
     for header, header_value in request.headers.items():
-        if header.lower() not in ["content-type", "content-length"] and not wsgiref.util.is_hop_by_hop(header):
+        if can_pass_header_though(header):
             headers[header] = header_value
     return headers
 
@@ -157,7 +160,7 @@ def get_response_headers(response):
     """
     headers = {}
     for header, value in response.headers.items():
-        if not wsgiref.util.is_hop_by_hop(header):
+        if can_pass_header_though(header):
             headers[header] = value
     return headers
 
